@@ -571,4 +571,59 @@ router.post('/api/referrals/claim', isAuthenticated, (req, res) => {
     
     res.json({ success: true, message: `Вы получили ${bonusAmount} монет за ${unclaimed.length} приглашений!` });
 });
+// ============= ПОКУПКА РОЛИ =============
+router.post('/api/shop/buy-role', isAuthenticated, async (req, res) => {
+    try {
+        const { roleId } = req.body;
+        const userId = req.user.id;
+        
+        const shopFile = path.join(__dirname, '..', 'data', 'shop.json');
+        let shop = { items: [], roles: [] };
+        if (fs.existsSync(shopFile)) {
+            shop = JSON.parse(fs.readFileSync(shopFile, 'utf8'));
+        }
+        
+        const roleData = shop.roles.find(r => r.id === roleId);
+        if (!roleData) {
+            return res.json({ success: false, error: 'Роль не найдена в магазине' });
+        }
+        
+        const balance = economyManager.getUserBalance(userId);
+        if (balance < roleData.price) {
+            return res.json({ success: false, error: `Недостаточно средств! Нужно ${roleData.price} монет` });
+        }
+        
+        // Проверяем, есть ли у пользователя уже эта роль
+        const guildId = '1208677626961727528';
+        const guild = global.discordClient.guilds.cache.get(guildId);
+        if (!guild) {
+            return res.json({ success: false, error: 'Сервер не найден' });
+        }
+        
+        const member = await guild.members.fetch(userId);
+        if (!member) {
+            return res.json({ success: false, error: 'Пользователь не найден' });
+        }
+        
+        const role = await guild.roles.fetch(roleId);
+        if (!role) {
+            return res.json({ success: false, error: 'Роль не найдена на сервере' });
+        }
+        
+        // Проверяем, есть ли уже такая роль
+        if (member.roles.cache.has(roleId)) {
+            return res.json({ success: false, error: 'У вас уже есть эта роль!' });
+        }
+        
+        // Списываем монеты и выдаём роль
+        economyManager.addBalance(userId, -roleData.price);
+        await member.roles.add(role);
+        
+        res.json({ success: true, message: `Вы купили роль ${role.name} за ${roleData.price} монет!` });
+        
+    } catch (error) {
+        console.error('Ошибка покупки роли:', error);
+        res.json({ success: false, error: 'Ошибка сервера: ' + error.message });
+    }
+});
 module.exports = router;
