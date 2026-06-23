@@ -181,10 +181,16 @@ router.get('/profile', isAuthenticated, async (req, res) => {
 });
 router.get('/shop', isAuthenticated, (req, res) => {
     const shopFile = path.join(__dirname, '..', 'data', 'shop.json');
-    let shop = { items: [] };
+    let shop = { items: [], roles: [] };
     if (fs.existsSync(shopFile)) shop = JSON.parse(fs.readFileSync(shopFile, 'utf8'));
     const balance = economyManager.getUserBalance(req.user.id);
-    res.render('shop', { user: req.user, items: shop.items, balance });
+    res.render('shop', { 
+        user: req.user, 
+        items: shop.items || [], 
+        roles: shop.roles || [],
+        shop: shop, // ← передаём shop целиком
+        balance 
+    });
 });
 
 router.get('/youtube', isAuthenticated, (req, res) => {
