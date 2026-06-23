@@ -1,51 +1,87 @@
-<%
-const title = 'Реферальная система';
-%>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Рефералы</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">🤖 BotPanel</a>
+            <div class="nav-menu">
+                <a href="/dashboard">📊 Панель</a>
+                <a href="/profile">👤 Профиль</a>
+                <a href="/shop">🛒 Магазин</a>
+                <a href="/youtube">📺 YouTube</a>
+                <a href="/referrals">📨 Рефералы</a>
+                <a href="/logout" style="color: #ff6b6b;">🚪 Выйти</a>
+            </div>
+        </div>
+    </nav>
 
-<h1>📨 Реферальная система</h1>
-<p style="color: var(--text-secondary); margin-bottom: 20px;">
-    Приглашай друзей и получай бонусы за каждого нового участника!
-</p>
+    <div class="container">
+        <h1>📨 Рефералы</h1>
+        <p style="color: #8888aa;">Приглашай друзей и получай бонусы!</p>
 
-<div class="card">
-    <h3>🔗 Твоя реферальная ссылка</h3>
-    <p style="background: var(--bg-dark); padding: 12px 16px; border-radius: 8px; margin: 10px 0; word-break: break-all;">
-        <code><%= refCode ? `https://discord.gg/invite/ваш_сервер?ref=${refCode}` : 'Создайте код в боте' %></code>
-    </p>
-    <button onclick="navigator.clipboard.writeText('<%= `https://discord.gg/invite/ваш_сервер?ref=${refCode}` %>')" class="btn btn-sm">
-        📋 Скопировать
-    </button>
-</div>
+        <div class="card">
+            <h3>🔗 Твоя ссылка</h3>
+            <div style="background: #0b0b14; padding: 12px 16px; border-radius: 8px; font-size: 1.1rem; word-break: break-all;">
+                <code><%= inviteLink %></code>
+            </div>
+            <button onclick="copyToClipboard('<%= inviteLink %>')" class="btn" style="margin-top: 10px;">📋 Копировать</button>
+            <p style="color: #8888aa; margin-top: 8px;">За каждого приглашённого — <strong>500 монет</strong></p>
+        </div>
 
-<div class="stats-grid">
-    <div class="stat-card">
-        <h3>👥 Приглашено</h3>
-        <p><%= invited.length %></p>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>👥 Приглашено</h3>
+                <p><%= invited.length %></p>
+            </div>
+            <div class="stat-card">
+                <h3>💰 Бонусов получено</h3>
+                <p><%= bonus %></p>  <!-- ← ИСПРАВЛЕНО -->
+            </div>
+            <div class="stat-card">
+                <h3>🔑 Твой код</h3>
+                <p style="font-size: 1.2rem;"><%= refCode %></p>
+            </div>
+        </div>
+
+        <% if (invited.length > 0) { %>
+            <div class="card" style="margin-top: 20px;">
+                <h3>👥 Приглашённые</h3>
+                <ul style="list-style: none; padding: 0;">
+                    <% invited.forEach((user, index) => { %>
+                        <li style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #2a2a50;">
+                            <span><%= user.username || 'Неизвестный' %></span>
+                            <span>
+                                <% if (user.joined) { %>
+                                    <span style="color: #00b894;">✅ Зашёл на сервер</span>
+                                <% } else { %>
+                                    <span style="color: #fdcb6e;">⏳ Ожидает</span>
+                                <% } %>
+                            </span>
+                        </li>
+                    <% }); %>
+                </ul>
+            </div>
+        <% } %>
     </div>
-    <div class="stat-card">
-        <h3>💰 Бонусов получено</h3>
-        <p><%= reward %></p>
-    </div>
-</div>
 
-<% if (invited.length > 0) { %>
-    <h3 style="margin-top: 20px;">Список приглашённых</h3>
-    <table>
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Пользователь</th>
-                <th>Дата</th>
-            </tr>
-        </thead>
-        <tbody>
-            <% invited.forEach((user, index) => { %>
-                <tr>
-                    <td><%= index + 1 %></td>
-                    <td><%= user.username || user.id %></td>
-                    <td><%= new Date(user.joinedAt).toLocaleDateString('ru-RU') %></td>
-                </tr>
-            <% }); %>
-        </tbody>
-    </table>
-<% } %>
+    <script>
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('✅ Ссылка скопирована!');
+            }).catch(() => {
+                const input = document.createElement('input');
+                input.value = text;
+                document.body.appendChild(input);
+                input.select();
+                document.execCommand('copy');
+                document.body.removeChild(input);
+                alert('✅ Ссылка скопирована!');
+            });
+        }
+    </script>
+</body>
+</html>
