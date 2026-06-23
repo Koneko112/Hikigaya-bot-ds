@@ -179,18 +179,40 @@ router.get('/profile', isAuthenticated, async (req, res) => {
         res.status(500).send('Ошибка загрузки профиля');
     }
 });
-router.get('/shop', isAuthenticated, (req, res) => {
-    const shopFile = path.join(__dirname, '..', 'data', 'shop.json');
-    let shop = { items: [], roles: [] };
-    if (fs.existsSync(shopFile)) shop = JSON.parse(fs.readFileSync(shopFile, 'utf8'));
-    const balance = economyManager.getUserBalance(req.user.id);
-    res.render('shop', { 
-        user: req.user, 
-        items: shop.items || [], 
-        roles: shop.roles || [],
-        shop: shop, // ← передаём shop целиком
-        balance 
-    });
+router.get('/shop', isAuthenticated, async (req, res) => {
+    try {
+        const shopFile = path.join(__dirname, '..', 'data', 'shop.json');
+        let shop = { items: [], roles: [] };
+        if (fs.existsSync(shopFile)) {
+            shop = JSON.parse(fs.readFileSync(shopFile, 'utf8'));
+        }
+        
+        const balance = economyManager.getUserBalance(req.user.id);
+        
+        // Проверяем, какие роли уже есть у пользователя
+        const guildId = '1208677626961727528'; // ⚠️ ЗАМЕНИ НА ID СВОЕГО СЕРВЕРА
+        const guild = global.discordClient.guilds.cache.get(guildId);
+        let userRoles = [];
+        if (guild) {
+            try {
+                const member = await guild.members.fetch(req.user.id);
+                userRoles = member.roles.cache.map(r => r.id);
+            } catch (e) {
+                console.log('⚠️ Не удалось получить роли пользователя');
+            }
+        }
+        
+        res.render('shop', { 
+            user: req.user, 
+            items: shop.items || [], 
+            roles: shop.roles || [],
+            balance: balance || 0,
+            userRoles: userRoles // ← ЭТА СТРОЧКА ТЕПЕРЬ ЕСТЬ
+        });
+    } catch (error) {
+        console.error('Ошибка загрузки магазина:', error);
+        res.status(500).send('Ошибка загрузки магазина');
+    }
 });
 
 router.get('/youtube', isAuthenticated, (req, res) => {
