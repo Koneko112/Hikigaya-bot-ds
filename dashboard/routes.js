@@ -477,4 +477,98 @@ router.get('/user/:userId', isAuthenticated, async (req, res) => {
         res.status(500).send('Ошибка загрузки профиля: ' + error.message);
     }
 });
+// ============= РЕФЕРАЛЬНАЯ СИСТЕМА =============
+const referralsFile = path.join(__dirname, '..', 'data', 'referrals.json');
+
+function loadReferrals() {
+    if (!fs.existsSync(referralsFile)) {
+        fs.writeFileSync(referralsFile, JSON.stringify({}));
+        return {};
+    }
+    return JSON.parse(fs.readFileSync(referralsFile, 'utf8'));
+}
+
+function saveReferrals(data) {
+    fs.writeFileSync(referralsFile, JSON.stringify(data, null, 2));
+}
+
+function generateCode() {
+    return Math.random().toString(36).substring(2, 8).toUpperCase();
+}
+
+// Страница рефералов
+router.get('/referrals', isAuthenticated, (req, res) => {
+    const referrals = loadReferrals();
+    const userRef = referrals[req.user.id] || { code: null, invited: [], bonus: 0 };
+    
+    if (!userRef.code) {
+        userRef.code = generateCode();
+        referrals[req.user.id] = userRef;
+        saveReferrals(referrals);
+    }
+    
+    // Ссылка для приглашения
+    const inviteLink = `${req.protocol}://${req.get('host')}/invite/${userRef.code}`;
+    
+    res.render('referrals', {
+        user: req.user,
+        refCode: userRef.code,
+        inviteLink: inviteLink,
+        invited: userRef.invited || [],
+        bonus: userRef.bonus || 0
+    });
+});
+
+// Страница приглашения (по ссылке)
+router.get('/invite/:code', async (req, res) => {
+    const code = req.params.code;
+    const referrals = loadReferrals();
+    
+    // Находим, кому принадлежит код
+    let referrerId = null;
+    for (const [userId, data] of Object.entries(referrals)) {
+        if (data.code === code) {
+            referrerId = userId;
+            break;
+        }
+    }
+    
+    if (!referrerId) {
+        return res.status(404).send('Неверный код приглашения');
+    }
+    
+    // Сохраняем в сессию, чтобы при заходе на сервер начислить бонус
+    req.session.referrerId = referrerId;
+    
+    res.render('invite', {
+        referrerId: referrerId,
+        code: code
+    });
+});
+
+// API: получение бонуса за приглашение
+router.post('/api/referrals/claim', isAuthenticated, (req, res) => {
+    const referrals = loadReferrals();
+    const userRef = referrals[req.user.id];
+    
+    if (!userRef || !userRef.invited || userRef.invited.length === 0) {
+        return res.json({ success: false, error: 'У вас нет приглашённых' });
+    }
+    
+    // Проверяем, есть ли невыплаченные бонусы
+    const unclaimed = userRef.invited.filter(i => !i.claimed);
+    if (unclaimed.length === 0) {
+        return res.json({ success: false, error: 'Все бонусы уже получены' });
+    }
+    
+    const bonusAmount = 500 * unclaimed.length;
+    economyManager.addBalance(req.user.id, bonusAmount);
+    
+    // Отмечаем как выплаченные
+    userRef.invited.forEach(i => { i.claimed = true; });
+    userRef.bonus = (userRef.bonus || 0) + bonusAmount;
+    saveReferrals(referrals);
+    
+    res.json({ success: true, message: `Вы получили ${bonusAmount} монет за ${unclaimed.length} приглашений!` });
+});
 module.exports = router;
