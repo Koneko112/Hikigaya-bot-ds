@@ -110,7 +110,7 @@ function isAuthenticated(req, res, next) {
 
 function isAdmin(req, res, next) {
     if (!req.isAuthenticated()) return res.redirect('/');
-    const adminIds = ['629216255873908736']; // 
+    const adminIds = ['629216255873908736','1091889146265604117' ]; // 
     if (adminIds.includes(req.user.id)) return next();
     res.redirect('/');
 }
@@ -398,7 +398,7 @@ router.get('/user/:userId', isAuthenticated, async (req, res) => {
             commands: userStats.commands || 0,
             role: role,
             inventory: userInventory,
-            isAdmin: req.user.id === '629216255873908736' // ⚠️ ЗАМЕНИ НА СВОЙ ID
+            isAdmin: req.user.id === '629216255873908736','1091889146265604117' // ⚠️ ЗАМЕНИ НА СВОЙ ID
         });
     } catch (error) {
         console.error('Ошибка загрузки профиля пользователя:', error);
