@@ -41,6 +41,9 @@
                     </div>
                 <% }); %>
             <% } else { %>
+                <p style="color: #8888aa; grid-column: 1 / -1; text-align: center;">📭 Магазин пуст</p>
+            <% } %>
+        </div>
 <!-- ===== РОЛИ ===== -->
 <h2 style="margin-top: 32px;">🎭 Роли</h2>
 <div class="shop-grid">
@@ -65,9 +68,6 @@
         </p>
     <% } %>
 </div>
-                <p style="color: #8888aa; grid-column: 1 / -1; text-align: center;">📭 Магазин пуст</p>
-            <% } %>
-        </div>
     </div>
     <footer class="footer">
         © <%= new Date().getFullYear() %> Discord Bot Panel
