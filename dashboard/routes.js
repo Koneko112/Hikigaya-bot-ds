@@ -5,6 +5,7 @@ const economyManager = require('../config/economyManager');
 const configManager = require('../config/configManager');
 const fs = require('fs');
 const path = require('path');
+const adminIds = ['629216255873908736', '1091889146265604117'];
 // ============= ПРОВЕРКА КЛИЕНТА =============
 function getDiscordClient() {
     if (!global.discordClient) {
