@@ -3,145 +3,259 @@
 <head>
     <title>Магазин</title>
     <link rel="stylesheet" href="/styles.css">
+    <style>
+        .roles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+            margin-top: 16px;
+        }
+        .role-card {
+            background: linear-gradient(145deg, #1a1a2e, #131325);
+            border-radius: 16px;
+            padding: 24px 16px 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        .role-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 40px rgba(124, 92, 252, 0.2);
+        }
+        .role-card .accent {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+        }
+        .role-card .icon-wrap {
+            font-size: 2.8rem;
+            display: inline-block;
+            width: 60px;
+            height: 60px;
+            line-height: 60px;
+            border-radius: 50%;
+            margin-bottom: 8px;
+        }
+        .role-card h4 {
+            font-size: 1.15rem;
+            margin: 8px 0 4px;
+            color: #fff;
+            font-weight: 600;
+        }
+        .role-card .color-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin: 4px 0 12px;
+        }
+        .role-card .color-row span {
+            color: #8888aa;
+            font-size: 0.8rem;
+        }
+        .role-card .color-dot {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 1px solid #2a2a50;
+        }
+        .role-card .price {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #fdcb6e;
+            margin: 8px 0 16px;
+        }
+        .role-card .price small {
+            font-size: 0.9rem;
+            color: #8888aa;
+            font-weight: normal;
+        }
+        .role-card .btn-buy {
+            border: none;
+            padding: 10px 24px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            width: 100%;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .role-card .btn-buy:hover:not(:disabled) {
+            transform: scale(1.03);
+        }
+        .role-card .btn-buy:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .role-card .owned-badge {
+            background: rgba(0, 184, 148, 0.15);
+            color: #00b894;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-bottom: 12px;
+            display: inline-block;
+        }
+        .shop-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 20px;
+            margin-top: 16px;
+        }
+        .shop-item {
+            background: #131325;
+            padding: 20px;
+            border-radius: 16px;
+            border: 1px solid #2a2a50;
+            text-align: center;
+            transition: 0.3s;
+        }
+        .shop-item:hover {
+            border-color: #7c5cfc;
+            transform: scale(1.02);
+        }
+        .shop-item .emoji {
+            font-size: 2.5rem;
+        }
+        .shop-item h4 {
+            margin: 8px 0 4px;
+        }
+        .shop-item .price {
+            color: #fdcb6e;
+            font-weight: 700;
+        }
+        .btn-success {
+            background: #00b894;
+            color: #fff;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn-success:hover:not(:disabled) {
+            background: #00d4aa;
+        }
+        .btn-success:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .btn-sm {
+            padding: 4px 12px;
+            font-size: 0.8rem;
+        }
+        .section-title {
+            margin-top: 40px;
+            font-size: 1.6rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .section-title small {
+            font-size: 0.8rem;
+            color: #8888aa;
+            font-weight: normal;
+        }
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            color: #8888aa;
+            padding: 40px 0;
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar">
         <div class="nav-container">
             <a href="/" class="nav-brand">🤖 BotPanel</a>
-           <div class="nav-menu">
-    <a href="/dashboard">📊 Панель</a>
-    <a href="/profile">👤 Профиль</a>
-    <a href="/shop">🛒 Магазин</a>
-    <a href="/youtube">📺 YouTube</a>
-    <% if (user && user.id === '629216255873908736') { %>
-        <a href="/admin" style="color: #fdcb6e;">⚙️ Админ</a>
-    <% } %>
-    <a href="/logout" style="color: #ff6b6b;">🚪 Выйти</a>
-</div>
+            <div class="nav-menu">
+                <a href="/dashboard">📊 Панель</a>
+                <a href="/profile">👤 Профиль</a>
+                <a href="/shop">🛒 Магазин</a>
+                <a href="/youtube">📺 YouTube</a>
+                <a href="/referrals">📨 Рефералы</a>
+                <a href="/logout" style="color: #ff6b6b;">🚪 Выйти</a>
+            </div>
         </div>
     </nav>
+
     <div class="container">
         <h1>🛒 Магазин</h1>
-        <p style="color: #8888aa;">Твой баланс: <strong style="color: #7c5cfc;"><%= balance %></strong> монет</p>
+        <p style="color: #8888aa; margin-bottom: 20px;">
+            Твой баланс: <strong style="color: #fdcb6e;"><%= balance || 0 %></strong> монет
+        </p>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; margin-top: 20px;">
-            <% if (items.length > 0) { %>
+        <!-- ===== ПРЕДМЕТЫ ===== -->
+        <h2 class="section-title">📦 Предметы <small>Полезные вещи</small></h2>
+        <div class="shop-grid">
+            <% if (items && items.length > 0) { %>
                 <% items.forEach(item => { %>
-                    <div style="background: #131325; padding: 20px; border-radius: 16px; border: 1px solid #2a2a50; text-align: center;">
-                        <div style="font-size: 2.5rem;"><%= item.emoji || '🎁' %></div>
+                    <div class="shop-item">
+                        <div class="emoji"><%= item.emoji || '🎁' %></div>
                         <h4><%= item.name %></h4>
-                        <p style="color: #8888aa; font-size: 0.9rem;"><%= item.description || '' %></p>
-                        <div style="font-size: 1.2rem; font-weight: 700; color: #fdcb6e; margin: 8px 0;"><%= item.price %> монет</div>
-                        <form method="POST" action="/api/shop/buy">
+                        <p style="color: #8888aa; font-size: 0.85rem;"><%= item.description || '' %></p>
+                        <p class="price"><%= item.price %> монет</p>
+                        <form method="POST" action="/api/shop/buy" style="background: none; padding: 0; border: none; margin: 0;">
                             <input type="hidden" name="itemId" value="<%= item.id %>">
-                            <button type="submit" style="background: #7c5cfc; color: #fff; border: none; padding: 8px 20px; border-radius: 30px; cursor: pointer;" <%= balance < item.price ? 'disabled' : '' %>>
+                            <button type="submit" class="btn-success btn-sm" <%= balance < item.price ? 'disabled' : '' %>>
                                 <%= balance < item.price ? '❌ Не хватает' : '✅ Купить' %>
                             </button>
                         </form>
                     </div>
                 <% }); %>
             <% } else { %>
-                <p style="color: #8888aa; grid-column: 1 / -1; text-align: center;">📭 Магазин пуст</p>
+                <p class="empty-state">📭 Предметов пока нет</p>
             <% } %>
         </div>
-<!-- ===== РОЛИ ===== -->
-<h2 style="margin-top: 40px; font-size: 1.6rem; display: flex; align-items: center; gap: 12px;">
-    <span>🎭</span> Роли
-    <span style="font-size: 0.8rem; color: #8888aa; font-weight: normal;">Выбери свою уникальную роль</span>
-</h2>
 
-<div class="roles-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; margin-top: 16px;">
-    <% if (roles && roles.length > 0) { %>
-        <% roles.forEach(role => { %>
-            <div class="role-card" style="
-                background: linear-gradient(145deg, #1a1a2e, #131325);
-                border-radius: 16px;
-                border: 2px solid <%= role.color || '#2a2a50' %>;
-                padding: 24px 16px 20px;
-                text-align: center;
-                transition: all 0.3s ease;
-                position: relative;
-                overflow: hidden;
-                box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-                cursor: default;
-            "
-            onmouseenter="this.style.transform='translateY(-8px)'; this.style.boxShadow='0 12px 40px rgba(124,92,252,0.2)'; this.style.borderColor='#7c5cfc'"
-            onmouseleave="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(0,0,0,0.3)'; this.style.borderColor='<%= role.color || '#2a2a50' %>'">
-                
-                <!-- Цветной акцент сверху -->
-                <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background: <%= role.color || '#7c5cfc' %>;"></div>
-                
-                <!-- Иконка роли -->
-                <div style="
-                    font-size: 2.8rem;
-                    margin-bottom: 8px;
-                    display: inline-block;
-                    width: 60px;
-                    height: 60px;
-                    line-height: 60px;
-                    border-radius: 50%;
-                    background: <%= role.color || '#7c5cfc' %>20;
-                    border: 2px solid <%= role.color || '#7c5cfc' %>40;
-                ">🎭</div>
-                
-                <!-- Название -->
-                <h4 style="font-size: 1.15rem; margin: 8px 0 4px; color: #fff; font-weight: 600;">
-                    <%= role.name %>
-                </h4>
-                
-                <!-- Цвет -->
-                <div style="display: flex; justify-content: center; align-items: center; gap: 8px; margin: 4px 0 12px;">
-                    <span style="color: #8888aa; font-size: 0.8rem;">Цвет:</span>
-                    <span style="display: inline-block; width: 18px; height: 18px; border-radius: 50%; background: <%= role.color || '#99aab5' %>; border: 1px solid #2a2a50;"></span>
-                    <span style="color: <%= role.color || '#99aab5' %>; font-weight: 500; font-size: 0.85rem;"><%= role.color || 'Белый' %></span>
-                </div>
-                
-                <!-- Цена -->
-                <div style="font-size: 1.3rem; font-weight: 700; color: #fdcb6e; margin: 8px 0 16px;">
-                    <%= role.price %> <span style="font-size: 0.9rem; color: #8888aa;">монет</span>
-                </div>
-                
-                <!-- Кнопка покупки -->
-                <form method="POST" action="/api/shop/buy-role" style="background: none; padding: 0; border: none; margin: 0;">
-                    <input type="hidden" name="roleId" value="<%= role.id %>">
-                    <button type="submit" 
-                        style="
-                            background: <%= balance < role.price ? '#2a2a4a' : role.color || '#7c5cfc' %>;
-                            color: <%= balance < role.price ? '#8888aa' : '#fff' %>;
-                            border: none;
-                            padding: 10px 24px;
-                            border-radius: 30px;
-                            font-weight: 600;
-                            font-size: 0.9rem;
-                            cursor: <%= balance < role.price ? 'not-allowed' : 'pointer' %>;
-                            transition: all 0.3s ease;
-                            width: 100%;
-                            opacity: <%= balance < role.price ? '0.5' : '1' %>;
-                        "
-                        <%= balance < role.price ? 'disabled' : '' %>
-                        onmouseenter="if (!this.disabled) { this.style.transform='scale(1.03)'; this.style.boxShadow='0 0 30px <%= role.color || '#7c5cfc' %>40'; }"
-                        onmouseleave="if (!this.disabled) { this.style.transform='scale(1)'; this.style.boxShadow='none'; }"
-                    >
-                        <%= balance < role.price ? '❌ Не хватает' : '✅ Купить роль' %>
-                    </button>
-                </form>
-                
-                <!-- Статус (если роль уже есть) -->
-                <% 
-                // Проверка, есть ли у пользователя эта роль
-                // Это нужно будет передать из сервера
-                %>
-            </div>
-        <% }); %>
-    <% } else { %>
-        <p style="grid-column: 1 / -1; text-align: center; color: var(--text-secondary); padding: 40px 0;">
-            📭 Ролей пока нет в магазине
-        </p>
-    <% } %>
-</div>
+        <!-- ===== РОЛИ ===== -->
+        <h2 class="section-title">🎭 Роли <small>Выбери свою уникальную роль</small></h2>
+        <div class="roles-grid">
+            <% if (roles && roles.length > 0) { %>
+                <% roles.forEach(role => { %>
+                    <div class="role-card" style="border: 2px solid <%= role.color || '#2a2a50' %>;">
+                        <div class="accent" style="background: <%= role.color || '#7c5cfc' %>;"></div>
+                        
+                        <div class="icon-wrap" style="background: <%= role.color || '#7c5cfc' %>20; border: 2px solid <%= role.color || '#7c5cfc' %>40;">
+                            🎭
+                        </div>
+                        
+                        <h4><%= role.name %></h4>
+                        
+                        <div class="color-row">
+                            <span>Цвет:</span>
+                            <span class="color-dot" style="background: <%= role.color || '#99aab5' %>;"></span>
+                            <span style="color: <%= role.color || '#99aab5' %>; font-weight: 500; font-size: 0.85rem;"><%= role.color || 'Белый' %></span>
+                        </div>
+                        
+                        <div class="price">
+                            <%= role.price %> <small>монет</small>
+                        </div>
+
+                        <% if (userRoles && userRoles.includes(role.id)) { %>
+                            <div class="owned-badge">✅ Уже есть</div>
+                        <% } else { %>
+                            <form method="POST" action="/api/shop/buy-role" style="background: none; padding: 0; border: none; margin: 0;">
+                                <input type="hidden" name="roleId" value="<%= role.id %>">
+                                <button type="submit" class="btn-buy" 
+                                    style="background: <%= balance < role.price ? '#2a2a4a' : role.color || '#7c5cfc' %>;
+                                           color: <%= balance < role.price ? '#8888aa' : '#fff' %>;"
+                                    <%= balance < role.price ? 'disabled' : '' %>>
+                                    <%= balance < role.price ? '❌ Не хватает' : '✅ Купить роль' %>
+                                </button>
+                            </form>
+                        <% } %>
+                    </div>
+                <% }); %>
+            <% } else { %>
+                <p class="empty-state">📭 Ролей пока нет в магазине</p>
+            <% } %>
+        </div>
     </div>
-    <footer class="footer">
-        © <%= new Date().getFullYear() %> Discord Bot Panel
-    </footer>
 </body>
 </html>
