@@ -398,7 +398,7 @@ router.get('/user/:userId', isAuthenticated, async (req, res) => {
             commands: userStats.commands || 0,
             role: role,
             inventory: userInventory,
-            isAdmin: req.user.id === '629216255873908736','1091889146265604117' // ⚠️ ЗАМЕНИ НА СВОЙ ID
+           isAdmin: ['629216255873908736', '1091889146265604117'].includes(req.user.id)
         });
     } catch (error) {
         console.error('Ошибка загрузки профиля пользователя:', error);
