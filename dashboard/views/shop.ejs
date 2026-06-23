@@ -45,26 +45,97 @@
             <% } %>
         </div>
 <!-- ===== РОЛИ ===== -->
-<h2 style="margin-top: 32px;">🎭 Роли</h2>
-<div class="shop-grid">
-    <% if (shop.roles && shop.roles.length > 0) { %>
-        <% shop.roles.forEach(role => { %>
-            <div class="shop-item">
-                <div class="emoji" style="color: <%= role.color || '#fff' %>">🎭</div>
-                <h4><%= role.name %></h4>
-                <p style="color: #8888aa; font-size: 0.9rem;">Цвет: <span style="color: <%= role.color || '#fff' %>;"><%= role.color || 'Белый' %></span></p>
-                <p class="price"><%= role.price %> монет</p>
+<h2 style="margin-top: 40px; font-size: 1.6rem; display: flex; align-items: center; gap: 12px;">
+    <span>🎭</span> Роли
+    <span style="font-size: 0.8rem; color: #8888aa; font-weight: normal;">Выбери свою уникальную роль</span>
+</h2>
+
+<div class="roles-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; margin-top: 16px;">
+    <% if (roles && roles.length > 0) { %>
+        <% roles.forEach(role => { %>
+            <div class="role-card" style="
+                background: linear-gradient(145deg, #1a1a2e, #131325);
+                border-radius: 16px;
+                border: 2px solid <%= role.color || '#2a2a50' %>;
+                padding: 24px 16px 20px;
+                text-align: center;
+                transition: all 0.3s ease;
+                position: relative;
+                overflow: hidden;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+                cursor: default;
+            "
+            onmouseenter="this.style.transform='translateY(-8px)'; this.style.boxShadow='0 12px 40px rgba(124,92,252,0.2)'; this.style.borderColor='#7c5cfc'"
+            onmouseleave="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(0,0,0,0.3)'; this.style.borderColor='<%= role.color || '#2a2a50' %>'">
+                
+                <!-- Цветной акцент сверху -->
+                <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background: <%= role.color || '#7c5cfc' %>;"></div>
+                
+                <!-- Иконка роли -->
+                <div style="
+                    font-size: 2.8rem;
+                    margin-bottom: 8px;
+                    display: inline-block;
+                    width: 60px;
+                    height: 60px;
+                    line-height: 60px;
+                    border-radius: 50%;
+                    background: <%= role.color || '#7c5cfc' %>20;
+                    border: 2px solid <%= role.color || '#7c5cfc' %>40;
+                ">🎭</div>
+                
+                <!-- Название -->
+                <h4 style="font-size: 1.15rem; margin: 8px 0 4px; color: #fff; font-weight: 600;">
+                    <%= role.name %>
+                </h4>
+                
+                <!-- Цвет -->
+                <div style="display: flex; justify-content: center; align-items: center; gap: 8px; margin: 4px 0 12px;">
+                    <span style="color: #8888aa; font-size: 0.8rem;">Цвет:</span>
+                    <span style="display: inline-block; width: 18px; height: 18px; border-radius: 50%; background: <%= role.color || '#99aab5' %>; border: 1px solid #2a2a50;"></span>
+                    <span style="color: <%= role.color || '#99aab5' %>; font-weight: 500; font-size: 0.85rem;"><%= role.color || 'Белый' %></span>
+                </div>
+                
+                <!-- Цена -->
+                <div style="font-size: 1.3rem; font-weight: 700; color: #fdcb6e; margin: 8px 0 16px;">
+                    <%= role.price %> <span style="font-size: 0.9rem; color: #8888aa;">монет</span>
+                </div>
+                
+                <!-- Кнопка покупки -->
                 <form method="POST" action="/api/shop/buy-role" style="background: none; padding: 0; border: none; margin: 0;">
                     <input type="hidden" name="roleId" value="<%= role.id %>">
-                    <button type="submit" class="btn btn-success btn-sm" <%= balance < role.price ? 'disabled' : '' %>>
+                    <button type="submit" 
+                        style="
+                            background: <%= balance < role.price ? '#2a2a4a' : role.color || '#7c5cfc' %>;
+                            color: <%= balance < role.price ? '#8888aa' : '#fff' %>;
+                            border: none;
+                            padding: 10px 24px;
+                            border-radius: 30px;
+                            font-weight: 600;
+                            font-size: 0.9rem;
+                            cursor: <%= balance < role.price ? 'not-allowed' : 'pointer' %>;
+                            transition: all 0.3s ease;
+                            width: 100%;
+                            opacity: <%= balance < role.price ? '0.5' : '1' %>;
+                        "
+                        <%= balance < role.price ? 'disabled' : '' %>
+                        onmouseenter="if (!this.disabled) { this.style.transform='scale(1.03)'; this.style.boxShadow='0 0 30px <%= role.color || '#7c5cfc' %>40'; }"
+                        onmouseleave="if (!this.disabled) { this.style.transform='scale(1)'; this.style.boxShadow='none'; }"
+                    >
                         <%= balance < role.price ? '❌ Не хватает' : '✅ Купить роль' %>
                     </button>
                 </form>
+                
+                <!-- Статус (если роль уже есть) -->
+                <% 
+                // Проверка, есть ли у пользователя эта роль
+                // Это нужно будет передать из сервера
+                %>
             </div>
         <% }); %>
     <% } else { %>
-        <p style="grid-column: 1 / -1; text-align: center; color: var(--text-secondary);">
-            📭 Ролей пока нет
+        <p style="grid-column: 1 / -1; text-align: center; color: var(--text-secondary); padding: 40px 0;">
+            📭 Ролей пока нет в магазине
         </p>
     <% } %>
 </div>
