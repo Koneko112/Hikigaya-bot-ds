@@ -41,6 +41,30 @@
                     </div>
                 <% }); %>
             <% } else { %>
+<!-- ===== РОЛИ ===== -->
+<h2 style="margin-top: 32px;">🎭 Роли</h2>
+<div class="shop-grid">
+    <% if (shop.roles && shop.roles.length > 0) { %>
+        <% shop.roles.forEach(role => { %>
+            <div class="shop-item">
+                <div class="emoji" style="color: <%= role.color || '#fff' %>">🎭</div>
+                <h4><%= role.name %></h4>
+                <p style="color: #8888aa; font-size: 0.9rem;">Цвет: <span style="color: <%= role.color || '#fff' %>;"><%= role.color || 'Белый' %></span></p>
+                <p class="price"><%= role.price %> монет</p>
+                <form method="POST" action="/api/shop/buy-role" style="background: none; padding: 0; border: none; margin: 0;">
+                    <input type="hidden" name="roleId" value="<%= role.id %>">
+                    <button type="submit" class="btn btn-success btn-sm" <%= balance < role.price ? 'disabled' : '' %>>
+                        <%= balance < role.price ? '❌ Не хватает' : '✅ Купить роль' %>
+                    </button>
+                </form>
+            </div>
+        <% }); %>
+    <% } else { %>
+        <p style="grid-column: 1 / -1; text-align: center; color: var(--text-secondary);">
+            📭 Ролей пока нет
+        </p>
+    <% } %>
+</div>
                 <p style="color: #8888aa; grid-column: 1 / -1; text-align: center;">📭 Магазин пуст</p>
             <% } %>
         </div>
