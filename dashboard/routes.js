@@ -337,6 +337,77 @@ router.post('/api/admin/mute', isAdmin, async (req, res) => {
         res.json({ success: false, error: 'Ошибка сервера: ' + error.message });
     }
 });
+router.post('/api/admin/role', isAdmin, async (req, res) => {
+    try {
+        const { userId, roleId, action } = req.body;
+        
+        console.log(`📩 Запрос на выдачу роли: userId=${userId}, roleId=${roleId}, action=${action}`);
+
+        if (!userId || !roleId) {
+            return res.json({ success: false, error: 'Укажите ID пользователя и роль' });
+        }
+
+        const guildId = '1208677626961727528'; // ⚠️ ЗАМЕНИ НА ID СВОЕГО СЕРВЕРА
+        const guild = global.discordClient.guilds.cache.get(guildId);
+        
+        if (!guild) {
+            console.error('❌ Сервер не найден');
+            return res.json({ success: false, error: 'Сервер не найден' });
+        }
+
+        // Загружаем участника
+        let member;
+        try {
+            member = await guild.members.fetch(userId);
+        } catch (fetchError) {
+            console.error('❌ Пользователь не найден:', fetchError.message);
+            return res.json({ success: false, error: 'Пользователь не найден на сервере' });
+        }
+
+        if (!member) {
+            return res.json({ success: false, error: 'Пользователь не найден' });
+        }
+
+        // Загружаем роль
+        let role;
+        try {
+            role = await guild.roles.fetch(roleId);
+        } catch (roleError) {
+            console.error('❌ Роль не найдена:', roleError.message);
+            return res.json({ success: false, error: 'Роль не найдена на сервере' });
+        }
+
+        if (!role) {
+            return res.json({ success: false, error: 'Роль не найдена' });
+        }
+
+        console.log(`🔍 Найдены: пользователь ${member.user.username}, роль ${role.name}`);
+
+        // Проверяем, может ли бот выдавать роль
+        if (!member.manageable) {
+            return res.json({ success: false, error: 'Бот не может управлять этим пользователем (роль выше или нет прав)' });
+        }
+
+        if (!role.editable) {
+            return res.json({ success: false, error: 'Бот не может управлять этой ролью (она выше роли бота)' });
+        }
+
+        // Выдаём или забираем роль
+        if (action === 'add') {
+            await member.roles.add(role);
+            console.log(`✅ Роль ${role.name} выдана пользователю ${member.user.username}`);
+            res.json({ success: true, message: `Роль ${role.name} выдана пользователю ${member.user.username}` });
+        } else {
+            await member.roles.remove(role);
+            console.log(`✅ Роль ${role.name} убрана у пользователя ${member.user.username}`);
+            res.json({ success: true, message: `Роль ${role.name} убрана у пользователя ${member.user.username}` });
+        }
+
+    } catch (error) {
+        console.error('❌ Ошибка выдачи роли:', error);
+        res.json({ success: false, error: 'Ошибка сервера: ' + error.message });
+    }
+});
 // ============= ВСЕ ПОЛЬЗОВАТЕЛИ СЕРВЕРА =============
 router.get('/admin/all-users', isAdmin, async (req, res) => {
     try {
