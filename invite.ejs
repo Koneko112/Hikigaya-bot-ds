@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Приглашение</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <div class="container" style="max-width: 600px; margin: 40px auto; text-align: center;">
+        <div class="card" style="padding: 40px;">
+            <h1 style="font-size: 3rem;">🎉</h1>
+            <h2>Вас пригласили на сервер!</h2>
+            <p style="color: #8888aa; margin: 20px 0;">
+                Кто-то хочет видеть вас в нашем сообществе!
+            </p>
+            
+            <% if (user) { %>
+                <p style="color: #8888aa;">Вы вошли как <strong><%= user.username %></strong></p>
+                <button onclick="confirmInvite()" class="btn-primary" style="margin-top: 16px;">
+                    ✅ Подтвердить приглашение
+                </button>
+                <div id="result" style="margin-top: 12px;"></div>
+                <p style="color: #8888aa; margin-top: 16px; font-size: 0.9rem;">
+                    После подтверждения зайдите на сервер, чтобы ваш друг получил бонус!
+                </p>
+            <% } else { %>
+                <p style="color: #8888aa; margin: 20px 0;">Войдите через Discord, чтобы подтвердить приглашение</p>
+                <a href="/auth/discord" class="btn-primary">🔑 Войти через Discord</a>
+            <% } %>
+            
+            <p style="color: #555; margin-top: 24px; font-size: 0.85rem;">
+                Код приглашения: <strong><%= code %></strong>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        async function confirmInvite() {
+            const result = document.getElementById('result');
+            result.textContent = '⏳ Подтверждение...';
+            result.style.color = '#8888aa';
+            
+            try {
+                const response = await fetch('/api/referrals/confirm', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code: '<%= code %>' })
+                });
+                const json = await response.json();
+                result.textContent = json.success ? json.message : '❌ ' + json.error;
+                result.style.color = json.success ? '#00b894' : '#ff6b6b';
+            } catch (error) {
+                result.textContent = '❌ Ошибка соединения';
+                result.style.color = '#ff6b6b';
+            }
+        }
+    </script>
+</body>
+</html>
