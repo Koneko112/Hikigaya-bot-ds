@@ -1,0 +1,10 @@
+{
+  "prefix": "!",
+  "welcomeMessage": "Добро пожаловать на сервер, {user}!",
+  "autoRoleId": "1208677626961727530",
+  "economy": {
+    "dailyAmount": 100,
+    "workMin": 10,
+    "workMax": 50
+  }
+}

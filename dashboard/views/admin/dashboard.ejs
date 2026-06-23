@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Админ-панель</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        .admin-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 24px;
+        }
+        .admin-card {
+            background: #131325;
+            border-radius: 16px;
+            border: 1px solid #2a2a50;
+            padding: 24px 16px;
+            text-align: center;
+            transition: 0.3s;
+            text-decoration: none;
+            color: #eee;
+        }
+        .admin-card:hover {
+            border-color: #7c5cfc;
+            transform: translateY(-4px);
+            box-shadow: 0 0 30px rgba(124, 92, 252, 0.15);
+        }
+        .admin-card .icon {
+            font-size: 2.8rem;
+            display: block;
+            margin-bottom: 8px;
+        }
+        .admin-card .title {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        .admin-card .desc {
+            color: #8888aa;
+            font-size: 0.85rem;
+            margin-top: 4px;
+        }
+        .admin-card .badge {
+            display: inline-block;
+            background: rgba(124, 92, 252, 0.15);
+            color: #7c5cfc;
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            margin-top: 8px;
+        }
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .stats-card {
+            background: #131325;
+            border-radius: 16px;
+            border: 1px solid #2a2a50;
+            padding: 20px;
+            text-align: center;
+        }
+        .stats-card .number {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #7c5cfc;
+        }
+        .stats-card .label {
+            color: #8888aa;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">🤖 BotPanel</a>
+            <div class="nav-menu">
+                <a href="/dashboard">📊 Панель</a>
+                <a href="/profile">👤 Профиль</a>
+                <a href="/shop">🛒 Магазин</a>
+                <a href="/youtube">📺 YouTube</a>
+                <a href="/admin" style="color: #fdcb6e;">⚙️ Админ</a>
+                <a href="/logout" style="color: #ff6b6b;">🚪 Выйти</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>⚙️ Управление сервером</h1>
+        <p style="color: #8888aa;">Быстрый доступ к основным функциям</p>
+
+        <!-- СТАТИСТИКА -->
+        <div class="stats-row">
+            <div class="stats-card">
+                <div class="number"><%= stats.totalUsers || 0 %></div>
+                <div class="label">👥 Пользователей</div>
+            </div>
+            <div class="stats-card">
+                <div class="number"><%= (stats.totalBalance || 0).toLocaleString() %></div>
+                <div class="label">💰 Всего монет</div>
+            </div>
+        </div>
+
+        <!-- КАРТОЧКИ АДМИНКИ -->
+        <div class="admin-grid">
+            <a href="/admin/users" class="admin-card">
+                <span class="icon">👥</span>
+                <div class="title">Пользователи</div>
+                <div class="desc">Управление балансом</div>
+                <span class="badge"><%= stats.totalUsers || 0 %> чел.</span>
+            </a>
+
+            <a href="/admin/all-users" class="admin-card">
+                <span class="icon">📋</span>
+                <div class="title">Все пользователи</div>
+                <div class="desc">Полный список сервера</div>
+                <span class="badge">Все участники</span>
+            </a>
+
+            <a href="/warnings" class="admin-card">
+                <span class="icon">⚠️</span>
+                <div class="title">Варны</div>
+                <div class="desc">Предупреждения</div>
+                <span class="badge">Управление</span>
+            </a>
+
+            <a href="/admin/moderation" class="admin-card">
+                <span class="icon">🔨</span>
+                <div class="title">Модерация</div>
+                <div class="desc">Мут, бан, роли</div>
+                <span class="badge">Действия</span>
+            </a>
+
+            <a href="/admin/youtube" class="admin-card">
+                <span class="icon">📺</span>
+                <div class="title">YouTube</div>
+                <div class="desc">Управление каналами</div>
+                <span class="badge">Отслеживание</span>
+            </a>
+
+            <a href="/admin/settings" class="admin-card">
+                <span class="icon">⚙️</span>
+                <div class="title">Настройки</div>
+                <div class="desc">Конфигурация бота</div>
+                <span class="badge">Система</span>
+            </a>
+        </div>
+    </div>
+</body>
+</html>

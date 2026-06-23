@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Модерация</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">🤖 BotPanel</a>
+           <div class="nav-menu">
+    <a href="/dashboard">📊 Панель</a>
+    <a href="/profile">👤 Профиль</a>
+    <a href="/shop">🛒 Магазин</a>
+    <a href="/youtube">📺 YouTube</a>
+    <a href="/admin" style="color: #fdcb6e; background: rgba(253, 203, 110, 0.1);">⚙️ Админ</a>
+    <a href="/logout" style="color: #ff6b6b;">🚪 Выйти</a>
+</div>
+        </div>
+    </nav>
+    <div class="container">
+        <h1>🔨 Модерация</h1>
+        <p><a href="/admin" style="color: #8888aa;">← Назад</a></p>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
+            <div style="background: #131325; padding: 20px; border-radius: 16px; border: 1px solid #2a2a50;">
+                <h3>🔇 Мут</h3>
+                <form id="muteForm">
+                    <input type="text" id="muteUser" placeholder="ID пользователя" style="width: 100%; padding: 8px; margin-bottom: 10px; background: #0b0b14; border: 1px solid #2a2a50; border-radius: 8px; color: #eee;">
+                    <input type="text" id="muteDuration" placeholder="Длительность (10m, 1h, 1d)" style="width: 100%; padding: 8px; margin-bottom: 10px; background: #0b0b14; border: 1px solid #2a2a50; border-radius: 8px; color: #eee;">
+                    <input type="text" id="muteReason" placeholder="Причина" style="width: 100%; padding: 8px; margin-bottom: 10px; background: #0b0b14; border: 1px solid #2a2a50; border-radius: 8px; color: #eee;">
+                    <button type="submit" style="background: #fdcb6e; color: #111; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer;">🔇 Замутить</button>
+                </form>
+                <div id="muteResult" style="margin-top: 10px;"></div>
+            </div>
+
+            <div style="background: #131325; padding: 20px; border-radius: 16px; border: 1px solid #2a2a50;">
+                <h3>🔨 Бан</h3>
+                <form id="banForm">
+                    <input type="text" id="banUser" placeholder="ID пользователя" style="width: 100%; padding: 8px; margin-bottom: 10px; background: #0b0b14; border: 1px solid #2a2a50; border-radius: 8px; color: #eee;">
+                    <input type="text" id="banReason" placeholder="Причина" style="width: 100%; padding: 8px; margin-bottom: 10px; background: #0b0b14; border: 1px solid #2a2a50; border-radius: 8px; color: #eee;">
+                    <button type="submit" style="background: #e74c3c; color: #fff; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer;">🔨 Забанить</button>
+                </form>
+                <div id="banResult" style="margin-top: 10px;"></div>
+            </div>
+
+            <div style="background: #131325; padding: 20px; border-radius: 16px; border: 1px solid #2a2a50;">
+                <h3>🎭 Выдача роли</h3>
+                <form id="roleForm">
+                    <input type="text" id="roleUser" placeholder="ID пользователя" style="width: 100%; padding: 8px; margin-bottom: 10px; background: #0b0b14; border: 1px solid #2a2a50; border-radius: 8px; color: #eee;">
+                    <input type="text" id="roleId" placeholder="ID роли" style="width: 100%; padding: 8px; margin-bottom: 10px; background: #0b0b14; border: 1px solid #2a2a50; border-radius: 8px; color: #eee;">
+                    <select id="roleAction" style="width: 100%; padding: 8px; margin-bottom: 10px; background: #0b0b14; border: 1px solid #2a2a50; border-radius: 8px; color: #eee;">
+                        <option value="add">Выдать</option>
+                        <option value="remove">Забрать</option>
+                    </select>
+                    <button type="submit" style="background: #7c5cfc; color: #fff; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer;">🎭 Выдать роль</button>
+                </form>
+                <div id="roleResult" style="margin-top: 10px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function sendRequest(url, data) {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            return await response.json();
+        }
+
+        document.getElementById('muteForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const result = document.getElementById('muteResult');
+            result.textContent = '⏳ Отправка...';
+            const data = {
+                userId: document.getElementById('muteUser').value,
+                duration: document.getElementById('muteDuration').value,
+                reason: document.getElementById('muteReason').value || 'Не указана'
+            };
+            const response = await sendRequest('/api/admin/mute', data);
+            result.textContent = response.success ? '✅ ' + response.message : '❌ ' + response.error;
+        });
+
+        document.getElementById('banForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const result = document.getElementById('banResult');
+            result.textContent = '⏳ Отправка...';
+            const data = {
+                userId: document.getElementById('banUser').value,
+                reason: document.getElementById('banReason').value || 'Не указана'
+            };
+            const response = await sendRequest('/api/admin/ban', data);
+            result.textContent = response.success ? '✅ ' + response.message : '❌ ' + response.error;
+        });
+
+        document.getElementById('roleForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const result = document.getElementById('roleResult');
+            result.textContent = '⏳ Отправка...';
+            const data = {
+                userId: document.getElementById('roleUser').value,
+                roleId: document.getElementById('roleId').value,
+                action: document.getElementById('roleAction').value
+            };
+            const response = await sendRequest('/api/admin/role', data);
+            result.textContent = response.success ? '✅ ' + response.message : '❌ ' + response.error;
+        });
+    </script>
+</body>
+</html>

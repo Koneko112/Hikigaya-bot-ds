@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Все пользователи</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">🤖 BotPanel</a>
+            <div class="nav-menu">
+                <a href="/dashboard">📊 Панель</a>
+                <a href="/profile">👤 Профиль</a>
+                <a href="/shop">🛒 Магазин</a>
+                <a href="/youtube">📺 YouTube</a>
+                <a href="/admin" style="color: #fdcb6e;">⚙️ Админ</a>
+                <a href="/logout" style="color: #ff6b6b;">🚪 Выйти</a>
+            </div>
+        </div>
+    </nav>
+    <div class="container">
+        <h1>👥 Все пользователи сервера</h1>
+        <p><a href="/admin" style="color: #8888aa;">← Назад</a></p>
+        <p style="color: #8888aa; margin-bottom: 16px;">Всего участников: <strong><%= members.length %></strong></p>
+
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Пользователь</th>
+                        <th>ID</th>
+                        <th>Роли</th>
+                        <th>Дата входа</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% members.forEach(m => { %>
+                        <tr>
+                            <td>
+                                <img src="<%= m.avatar %>" style="width: 32px; height: 32px; border-radius: 50%; vertical-align: middle; margin-right: 8px;">
+                                <td>
+    <a href="/user/<%= m.id %>" style="color: #fff; text-decoration: none; display: flex; align-items: center; gap: 8px;">
+        <img src="<%= m.avatar %>" style="width: 32px; height: 32px; border-radius: 50%;">
+        <strong><%= m.username %></strong>
+    </a>
+</td>
+<td><code><%= m.id %></code></td>
+<td style="font-size: 0.85rem;"><%= m.roles %></td>
+<td><%= new Date(m.joinedAt).toLocaleDateString('ru-RU') %></td>
+                            </td>
+                            <td><code><%= m.id %></code></td>
+                            <td style="font-size: 0.85rem;"><%= m.roles %></td>
+                            <td><%= new Date(m.joinedAt).toLocaleDateString('ru-RU') %></td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

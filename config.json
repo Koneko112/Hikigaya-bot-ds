@@ -1,0 +1,23 @@
+{
+    "prefix": "!",
+    "welcomeMsg": "Привет, я твой цифровой помощник, чем могу быть полезен?",
+    "automod": true,
+    "badWords": [
+        "лох",
+        "пидр"
+    ],
+    "logChannelId": "1510356000928956568",
+    "autoroleId": null,
+    "enableAutorole": false,
+    "economy": {
+        "enabled": true,
+        "cardCommand": true,
+        "dailyCommand": true,
+        "minDailyReward": 400,
+        "maxDailyReward": 1200,
+        "vipRolePrice": 15000,
+        "colorRolePrice": 8000,
+        "boostPrice": 5001,
+        "vipRoleColor": "#ffd700"
+    }
+}

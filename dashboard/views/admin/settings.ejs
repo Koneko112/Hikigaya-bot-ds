@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Настройки</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">🤖 BotPanel</a>
+           <div class="nav-menu">
+    <a href="/dashboard">📊 Панель</a>
+    <a href="/profile">👤 Профиль</a>
+    <a href="/shop">🛒 Магазин</a>
+    <a href="/youtube">📺 YouTube</a>
+    <a href="/admin" style="color: #fdcb6e; background: rgba(253, 203, 110, 0.1);">⚙️ Админ</a>
+    <a href="/logout" style="color: #ff6b6b;">🚪 Выйти</a>
+</div>
+        </div>
+    </nav>
+    <div class="container">
+        <h1>⚙️ Настройки</h1>
+        <p><a href="/admin" style="color: #8888aa;">← Назад</a></p>
+
+        <div style="background: #131325; padding: 24px; border-radius: 16px; border: 1px solid #2a2a50;">
+            <form method="POST" action="/api/config">
+                <label style="display: block; color: #8888aa; margin-bottom: 4px;">Префикс команд</label>
+                <input type="text" name="prefix" value="<%= config.prefix %>" style="width: 100%; padding: 10px 14px; margin-bottom: 16px; background: #0b0b14; border: 1px solid #2a2a50; border-radius: 8px; color: #eee;">
+
+                <label style="display: block; color: #8888aa; margin-bottom: 4px;">Приветственное сообщение</label>
+                <input type="text" name="welcomeMessage" value="<%= config.welcomeMessage %>" style="width: 100%; padding: 10px 14px; margin-bottom: 16px; background: #0b0b14; border: 1px solid #2a2a50; border-radius: 8px; color: #eee;">
+
+                <label style="display: block; color: #8888aa; margin-bottom: 4px;">Ежедневный бонус</label>
+                <input type="number" name="dailyAmount" value="<%= config.economy.dailyAmount %>" style="width: 100%; padding: 10px 14px; margin-bottom: 16px; background: #0b0b14; border: 1px solid #2a2a50; border-radius: 8px; color: #eee;">
+
+                <button type="submit" style="background: #7c5cfc; color: #fff; border: none; padding: 10px 24px; border-radius: 8px; cursor: pointer;">💾 Сохранить</button>
+            </form>
+        </div>
+    </div>
+    <footer class="footer">
+        © <%= new Date().getFullYear() %> Discord Bot Panel
+    </footer>
+</body>
+</html>

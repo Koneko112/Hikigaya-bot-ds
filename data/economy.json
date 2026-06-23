@@ -1,0 +1,72 @@
+{
+  "629216255873908736": {
+    "balance": 21944,
+    "lastDaily": 1781603878841,
+    "inventory": [],
+    "total_earned": 37627,
+    "total_spent": 22800
+  },
+  "1091889146265604117": {
+    "balance": 98125,
+    "lastDaily": 1781449451257,
+    "inventory": [],
+    "total_spent": 2000,
+    "total_earned": 125
+  },
+  "1259007025426333737": {
+    "balance": 0,
+    "lastDaily": null,
+    "inventory": [],
+    "total_earned": 38785,
+    "total_spent": 38785,
+    "bank": 0
+  },
+  "1375100312876089416": {
+    "balance": 12500,
+    "lastDaily": null,
+    "inventory": [],
+    "total_earned": 13000,
+    "total_spent": 500,
+    "bank": 0
+  },
+  "1506710063446757477": {
+    "balance": 0,
+    "lastDaily": null,
+    "inventory": [],
+    "total_earned": 0,
+    "total_spent": 0,
+    "bank": 0
+  },
+  "727683237517852692": {
+    "balance": 0,
+    "lastDaily": null,
+    "inventory": [],
+    "total_earned": 0,
+    "total_spent": 0,
+    "bank": 0
+  },
+  "1150277827351023696": {
+    "balance": 0,
+    "lastDaily": null,
+    "inventory": [],
+    "total_earned": 0,
+    "total_spent": 0,
+    "bank": 0
+  },
+  "633654672434921487": {
+    "balance": 0,
+    "lastDaily": null,
+    "inventory": [],
+    "total_earned": 0,
+    "total_spent": 0,
+    "bank": 0
+  },
+  "961620007551369248": {
+    "balance": 0,
+    "lastDaily": null,
+    "inventory": [],
+    "total_earned": 0,
+    "total_spent": 0,
+    "bank": 0
+  }
+}

@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Профиль</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #0b0b14;
+            color: #eee;
+            min-height: 100vh;
+        }
+        .navbar {
+            background: #111;
+            padding: 12px 24px;
+            border-bottom: 1px solid #2a2a50;
+        }
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .nav-brand {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #7c5cfc;
+        }
+        .nav-menu {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        .nav-menu a {
+            color: #8888aa;
+            padding: 6px 14px;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+        .nav-menu a:hover {
+            color: #fff;
+            background: rgba(124, 92, 252, 0.1);
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 20px;
+        }
+        .profile-wrapper {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+        .profile-sidebar {
+            flex: 0 0 280px;
+        }
+        .profile-card {
+            background: #131325;
+            border-radius: 16px;
+            border: 1px solid #2a2a50;
+            padding: 24px;
+            text-align: center;
+        }
+        .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 3px solid #7c5cfc;
+            object-fit: cover;
+        }
+        .profile-name {
+            margin-top: 12px;
+            font-size: 1.4rem;
+        }
+        .profile-stats {
+            color: #8888aa;
+            font-size: 0.9rem;
+            margin-top: 8px;
+        }
+        .profile-stats strong {
+            color: #fff;
+        }
+        .profile-id {
+            margin-top: 16px;
+            font-size: 0.85rem;
+            color: #555;
+        }
+        .profile-menu {
+            background: #131325;
+            border-radius: 16px;
+            border: 1px solid #2a2a50;
+            padding: 16px;
+            margin-top: 16px;
+        }
+        .profile-menu a {
+            display: block;
+            padding: 10px 16px;
+            border-radius: 8px;
+            color: #8888aa;
+            text-decoration: none;
+            transition: 0.2s;
+            font-size: 0.95rem;
+        }
+        .profile-menu a:hover {
+            background: rgba(124, 92, 252, 0.1);
+            color: #fff;
+        }
+        .profile-menu a.active {
+            background: rgba(124, 92, 252, 0.15);
+            color: #7c5cfc;
+        }
+        .profile-menu a.admin-link {
+            color: #fdcb6e;
+        }
+        .profile-content {
+            flex: 1;
+            min-width: 280px;
+        }
+        .tab-content {
+            background: #131325;
+            border-radius: 16px;
+            border: 1px solid #2a2a50;
+            padding: 24px;
+            animation: fadeIn 0.3s ease;
+        }
+        .tab-content h2 {
+            font-size: 1.2rem;
+            margin-bottom: 16px;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .info-grid div span {
+            color: #8888aa;
+            display: block;
+            font-size: 0.85rem;
+        }
+        .info-grid div strong {
+            font-size: 1.05rem;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @media (max-width: 768px) {
+            .profile-wrapper {
+                flex-direction: column;
+            }
+            .profile-sidebar {
+                flex: 1;
+                width: 100%;
+            }
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">🤖 BotPanel</a>
+            <div class="nav-menu">
+    <a href="/dashboard">📊 Панель</a>
+    <a href="/profile">👤 Профиль</a>
+    <a href="/shop">🛒 Магазин</a>
+    <a href="/youtube">📺 YouTube</a>
+    <% if (user && user.id === '629216255873908736') { %>
+        <a href="/admin" style="color: #fdcb6e;">⚙️ Админ</a>
+    <% } %>
+    <a href="/logout" style="color: #ff6b6b;">🚪 Выйти</a>
+</div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="profile-wrapper">
+
+            <!-- ЛЕВАЯ КОЛОНКА -->
+            <div class="profile-sidebar">
+                <div class="profile-card">
+                    <img src="<%= user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=256` : 'https://cdn.discordapp.com/embed/avatars/0.png' %>" alt="Аватар" class="avatar">
+                    <h2 class="profile-name"><%= user.username %></h2>
+                    <div class="profile-stats">
+                        <div>💰 <strong><%= balance || 0 %></strong> монет</div>
+                        <div style="margin-top: 4px;">📊 <strong><%= messages || 0 %></strong> сообщений</div>
+                        <div style="margin-top: 4px;">🎮 <strong><%= commands || 0 %></strong> команд</div>
+                    </div>
+                    <div class="profile-id">🆔 <%= user.id %></div>
+                </div>
+
+                <div class="profile-menu">
+                    <a href="#" class="active" data-tab="info">📋 Информация</a>
+                    <a href="#" data-tab="inventory">🎒 Инвентарь</a>
+                    <a href="#" data-tab="settings">⚙️ Настройки</a>
+                    <% if (user && user.id === 'ваш_discord_id') { %>
+                        <a href="/admin" class="admin-link">🔨 Админ панель</a>
+                    <% } %>
+                </div>
+            </div>
+
+            <!-- ПРАВАЯ КОЛОНКА -->
+            <div class="profile-content">
+
+                <!-- ВКЛАДКА: ИНФОРМАЦИЯ -->
+                <div id="tab-info" class="tab-content">
+                    <h2>📋 Информация</h2>
+                    <div class="info-grid">
+                        <div>
+                            <span>ID</span>
+                            <strong><%= user.id %></strong>
+                        </div>
+                        <div>
+                            <span>Роль</span>
+                            <strong><%= role || 'Пользователь' %></strong>
+                        </div>
+                        <div>
+                            <span>Дата регистрации</span>
+                            <strong><%= new Date(user.createdAt).toLocaleDateString('ru-RU') %></strong>
+                        </div>
+                        <div>
+                            <span>Баланс</span>
+                            <strong><%= balance || 0 %> монет</strong>
+                        </div>
+                        <div>
+                            <span>Сообщений</span>
+                            <strong><%= messages || 0 %></strong>
+                        </div>
+                        <div>
+                            <span>Команд</span>
+                            <strong><%= commands || 0 %></strong>
+                        </div>
+                    </div>
+                </div>
+
+               <!-- Вкладка: Инвентарь -->
+<div id="tab-inventory" class="tab-content" style="display: none;">
+    <h2>🎒 Инвентарь</h2>
+    <% if (inventory && inventory.length > 0) { %>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px;">
+            <% inventory.forEach(item => { %>
+                <div style="background: #1a1a2e; padding: 16px; border-radius: 12px; border: 1px solid #2a2a50; text-align: center;">
+                    <div style="font-size: 2rem;"><%= item.emoji || '🎁' %></div>
+                    <div style="font-weight: 600; margin-top: 4px;"><%= item.name %></div>
+                    <div style="color: #8888aa; font-size: 0.8rem;"><%= item.price || 0 %> монет</div>
+                </div>
+            <% }); %>
+        </div>
+    <% } else { %>
+        <p style="color: #8888aa;">📭 У тебя пока нет предметов. Зайди в магазин!</p>
+    <% } %>
+</div>
+
+                <!-- Вкладка: Настройки -->
+<div id="tab-settings" class="tab-content" style="display: none;">
+    <h2>⚙️ Настройки</h2>
+    
+    <% if (user && user.id === '629216255873908736') { %>
+        <p style="color: #8888aa; margin-bottom: 16px;">Управление пользователями (только для разработчика)</p>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <!-- Мут -->
+            <div style="background: #1a1a2e; padding: 16px; border-radius: 12px; border: 1px solid #2a2a50;">
+                <h4>🔇 Мут</h4>
+                <form id="muteFormSettings">
+                    <input type="text" id="muteUserSettings" placeholder="ID пользователя" style="width: 100%; padding: 6px; margin-bottom: 8px; background: #0b0b14; border: 1px solid #2a2a50; border-radius: 6px; color: #eee;">
+                    <input type="text" id="muteDurationSettings" placeholder="10m, 1h, 1d" style="width: 100%; padding: 6px; margin-bottom: 8px; background: #0b0b14; border: 1px solid #2a2a50; border-radius: 6px; color: #eee;">
+                    <input type="text" id="muteReasonSettings" placeholder="Причина" style="width: 100%; padding: 6px; margin-bottom: 8px; background: #0b0b14; border: 1px solid #2a2a50; border-radius: 6px; color: #eee;">
+                    <button type="submit" style="background: #fdcb6e; color: #111; border: none; padding: 6px 16px; border-radius: 6px; cursor: pointer;">🔇 Замутить</button>
+                </form>
+                <div id="muteResultSettings" style="margin-top: 8px;"></div>
+            </div>
+            
+            <!-- Бан -->
+            <div style="background: #1a1a2e; padding: 16px; border-radius: 12px; border: 1px solid #2a2a50;">
+                <h4>🔨 Бан</h4>
+                <form id="banFormSettings">
+                    <input type="text" id="banUserSettings" placeholder="ID пользователя" style="width: 100%; padding: 6px; margin-bottom: 8px; background: #0b0b14; border: 1px solid #2a2a50; border-radius: 6px; color: #eee;">
+                    <input type="text" id="banReasonSettings" placeholder="Причина" style="width: 100%; padding: 6px; margin-bottom: 8px; background: #0b0b14; border: 1px solid #2a2a50; border-radius: 6px; color: #eee;">
+                    <button type="submit" style="background: #e74c3c; color: #fff; border: none; padding: 6px 16px; border-radius: 6px; cursor: pointer;">🔨 Забанить</button>
+                </form>
+                <div id="banResultSettings" style="margin-top: 8px;"></div>
+            </div>
+        </div>
+    <% } else { %>
+        <p style="color: #8888aa;">Настройки профиля будут доступны позже</p>
+    <% } %>
+</div>
+
+    <script>
+        document.querySelectorAll('.profile-menu a[data-tab]').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelectorAll('.profile-menu a').forEach(a => a.classList.remove('active'));
+                this.classList.add('active');
+                document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+                document.getElementById('tab-' + this.dataset.tab).style.display = 'block';
+            });
+        });
+    </script>
+<script>
+    // Форма мута
+    document.getElementById('muteFormSettings')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const result = document.getElementById('muteResultSettings');
+        result.textContent = '⏳ Отправка...';
+        const data = {
+            userId: document.getElementById('muteUserSettings').value,
+            duration: document.getElementById('muteDurationSettings').value,
+            reason: document.getElementById('muteReasonSettings').value || 'Не указана'
+        };
+        const response = await fetch('/api/admin/mute', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        const json = await response.json();
+        result.textContent = json.success ? '✅ ' + json.message : '❌ ' + json.error;
+    });
+
+    // Форма бана
+    document.getElementById('banFormSettings')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const result = document.getElementById('banResultSettings');
+        result.textContent = '⏳ Отправка...';
+        const data = {
+            userId: document.getElementById('banUserSettings').value,
+            reason: document.getElementById('banReasonSettings').value || 'Не указана'
+        };
+        const response = await fetch('/api/admin/ban', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        const json = await response.json();
+        result.textContent = json.success ? '✅ ' + json.message : '❌ ' + json.error;
+    });
+</script>
+</body>
+</html>

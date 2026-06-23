@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Профиль пользователя</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        .profile-wrapper {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+        .profile-sidebar {
+            flex: 0 0 280px;
+        }
+        .profile-card {
+            background: #131325;
+            border-radius: 16px;
+            border: 1px solid #2a2a50;
+            padding: 24px;
+            text-align: center;
+        }
+        .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 3px solid #7c5cfc;
+            object-fit: cover;
+        }
+        .profile-menu {
+            background: #131325;
+            border-radius: 16px;
+            border: 1px solid #2a2a50;
+            padding: 16px;
+            margin-top: 16px;
+        }
+        .profile-menu a {
+            display: block;
+            padding: 10px 16px;
+            border-radius: 8px;
+            color: #8888aa;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+        .profile-menu a:hover {
+            background: rgba(124, 92, 252, 0.1);
+            color: #fff;
+        }
+        .profile-menu a.active {
+            background: rgba(124, 92, 252, 0.15);
+            color: #7c5cfc;
+        }
+        .tab-content {
+            background: #131325;
+            border-radius: 16px;
+            border: 1px solid #2a2a50;
+            padding: 24px;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @media (max-width: 768px) {
+            .profile-wrapper {
+                flex-direction: column;
+            }
+            .profile-sidebar {
+                flex: 1;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">🤖 BotPanel</a>
+            <div class="nav-menu">
+                <a href="/dashboard">📊 Панель</a>
+                <a href="/profile">👤 Мой профиль</a>
+                <a href="/shop">🛒 Магазин</a>
+                <a href="/youtube">📺 YouTube</a>
+                <% if (isAdmin) { %>
+                    <a href="/admin" style="color: #fdcb6e;">⚙️ Админ</a>
+                <% } %>
+                <a href="/logout" style="color: #ff6b6b;">🚪 Выйти</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="profile-wrapper">
+            <!-- ЛЕВАЯ КОЛОНКА -->
+            <div class="profile-sidebar">
+                <div class="profile-card">
+                    <img src="<%= targetUser.avatar %>" alt="Аватар" class="avatar">
+                    <h2 style="margin-top: 12px;"><%= targetUser.username %></h2>
+                    <div style="color: #8888aa; font-size: 0.9rem;">
+                        <div>💰 <strong style="color: #fff;"><%= balance || 0 %></strong> монет</div>
+                        <div>📊 <strong style="color: #fff;"><%= messages || 0 %></strong> сообщений</div>
+                        <div>🎮 <strong style="color: #fff;"><%= commands || 0 %></strong> команд</div>
+                    </div>
+                    <div style="margin-top: 12px; font-size: 0.85rem; color: #555;">🆔 <%= targetUser.id %></div>
+                </div>
+
+                <div class="profile-menu">
+                    <a href="#" class="active" data-tab="info">📋 Информация</a>
+                    <a href="#" data-tab="inventory">🎒 Инвентарь</a>
+                    <% if (isAdmin) { %>
+                        <a href="#" data-tab="moderation">🔨 Модерация</a>
+                    <% } %>
+                </div>
+            </div>
+
+            <!-- ПРАВАЯ КОЛОНКА -->
+            <div style="flex: 1; min-width: 280px;">
+                <!-- Вкладка: Информация -->
+                <div id="tab-info" class="tab-content">
+                    <h2>📋 Информация</h2>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div><span style="color: #8888aa;">ID</span><br><strong><%= targetUser.id %></strong></div>
+                        <div><span style="color: #8888aa;">Роль</span><br><strong><%= role || 'Пользователь' %></strong></div>
+                        <div><span style="color: #8888aa;">На сервере с</span><br><strong><%= new Date(targetUser.joinedAt).toLocaleDateString('ru-RU') %></strong></div>
+                        <div><span style="color: #8888aa;">Баланс</span><br><strong><%= balance || 0 %> монет</strong></div>
+                        <div><span style="color: #8888aa;">Сообщений</span><br><strong><%= messages || 0 %></strong></div>
+                        <div><span style="color: #8888aa;">Команд</span><br><strong><%= commands || 0 %></strong></div>
+                    </div>
+                </div>
+
+                <!-- Вкладка: Инвентарь -->
+                <div id="tab-inventory" class="tab-content" style="display: none;">
+                    <h2>🎒 Инвентарь</h2>
+                    <% if (inventory && inventory.length > 0) { %>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px;">
+                            <% inventory.forEach(item => { %>
+                                <div style="background: #1a1a2e; padding: 16px; border-radius: 12px; border: 1px solid #2a2a50; text-align: center;">
+                                    <div style="font-size: 2rem;"><%= item.emoji || '🎁' %></div>
+                                    <div style="font-weight: 600;"><%= item.name %></div>
+                                    <div style="color: #8888aa; font-size: 0.8rem;"><%= item.price || 0 %> монет</div>
+                                </div>
+                            <% }); %>
+                        </div>
+                    <% } else { %>
+                        <p style="color: #8888aa;">📭 У пользователя нет предметов.</p>
+                    <% } %>
+                </div>
+
+                <!-- Вкладка: Модерация (только для админа) -->
+                <% if (isAdmin) { %>
+                    <div id="tab-moderation" class="tab-content" style="display: none;">
+                        <h2>🔨 Модерация</h2>
+                        <p style="color: #8888aa; margin-bottom: 16px;">Управление пользователем <strong><%= targetUser.username %></strong></p>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <!-- Мут -->
+                            <div style="background: #1a1a2e; padding: 16px; border-radius: 12px; border: 1px solid #2a2a50;">
+                                <h4>🔇 Мут</h4>
+                                <form id="muteForm">
+                                    <input type="text" id="muteDuration" placeholder="10m, 1h, 1d" style="width: 100%; padding: 6px; margin-bottom: 8px; background: #0b0b14; border: 1px solid #2a2a50; border-radius: 6px; color: #eee;">
+                                    <input type="text" id="muteReason" placeholder="Причина" style="width: 100%; padding: 6px; margin-bottom: 8px; background: #0b0b14; border: 1px solid #2a2a50; border-radius: 6px; color: #eee;">
+                                    <button type="submit" style="background: #fdcb6e; color: #111; border: none; padding: 6px 16px; border-radius: 6px; cursor: pointer;">🔇 Замутить</button>
+                                </form>
+                                <div id="muteResult" style="margin-top: 8px;"></div>
+                            </div>
+                            
+                            <!-- Бан -->
+                            <div style="background: #1a1a2e; padding: 16px; border-radius: 12px; border: 1px solid #2a2a50;">
+                                <h4>🔨 Бан</h4>
+                                <form id="banForm">
+                                    <input type="text" id="banReason" placeholder="Причина" style="width: 100%; padding: 6px; margin-bottom: 8px; background: #0b0b14; border: 1px solid #2a2a50; border-radius: 6px; color: #eee;">
+                                    <button type="submit" style="background: #e74c3c; color: #fff; border: none; padding: 6px 16px; border-radius: 6px; cursor: pointer;">🔨 Забанить</button>
+                                </form>
+                                <div id="banResult" style="margin-top: 8px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Переключение вкладок
+        document.querySelectorAll('.profile-menu a[data-tab]').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelectorAll('.profile-menu a').forEach(a => a.classList.remove('active'));
+                this.classList.add('active');
+                document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+                document.getElementById('tab-' + this.dataset.tab).style.display = 'block';
+            });
+        });
+
+        // Мут
+        document.getElementById('muteForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const result = document.getElementById('muteResult');
+            result.textContent = '⏳ Отправка...';
+            const data = {
+                userId: '<%= targetUser.id %>',
+                duration: document.getElementById('muteDuration').value,
+                reason: document.getElementById('muteReason').value || 'Не указана'
+            };
+            const response = await fetch('/api/admin/mute', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const json = await response.json();
+            result.textContent = json.success ? '✅ ' + json.message : '❌ ' + json.error;
+        });
+
+        // Бан
+        document.getElementById('banForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const result = document.getElementById('banResult');
+            result.textContent = '⏳ Отправка...';
+            const data = {
+                userId: '<%= targetUser.id %>',
+                reason: document.getElementById('banReason').value || 'Не указана'
+            };
+            const response = await fetch('/api/admin/ban', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const json = await response.json();
+            result.textContent = json.success ? '✅ ' + json.message : '❌ ' + json.error;
+        });
+    </script>
+</body>
+</html>

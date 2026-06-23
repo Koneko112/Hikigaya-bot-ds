@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Управление YouTube</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">🤖 BotPanel</a>
+            <div class="nav-menu">
+    <a href="/dashboard">📊 Панель</a>
+    <a href="/profile">👤 Профиль</a>
+    <a href="/shop">🛒 Магазин</a>
+    <a href="/youtube">📺 YouTube</a>
+    <a href="/admin" style="color: #fdcb6e; background: rgba(253, 203, 110, 0.1);">⚙️ Админ</a>
+    <a href="/logout" style="color: #ff6b6b;">🚪 Выйти</a>
+</div>
+        </div>
+    </nav>
+    <div class="container">
+        <h1>📺 Управление YouTube</h1>
+        <p><a href="/admin" style="color: #8888aa;">← Назад</a></p>
+
+        <div style="background: #131325; padding: 24px; border-radius: 16px; border: 1px solid #2a2a50; margin-bottom: 24px;">
+            <h3>Добавить канал</h3>
+            <form method="POST" action="/api/admin/youtube/add">
+                <label style="display: block; color: #8888aa; margin-bottom: 4px;">Channel ID (UC...)</label>
+                <input type="text" name="channelId" placeholder="UCXuqSBlHAE6Xw-yeJA0Tunw" required style="width: 100%; padding: 10px 14px; margin-bottom: 16px; background: #0b0b14; border: 1px solid #2a2a50; border-radius: 8px; color: #eee;">
+                <label style="display: block; color: #8888aa; margin-bottom: 4px;">Название</label>
+                <input type="text" name="channelName" placeholder="Название канала" required style="width: 100%; padding: 10px 14px; margin-bottom: 16px; background: #0b0b14; border: 1px solid #2a2a50; border-radius: 8px; color: #eee;">
+                <button type="submit" style="background: #7c5cfc; color: #fff; border: none; padding: 10px 24px; border-radius: 8px; cursor: pointer;">➕ Добавить</button>
+            </form>
+        </div>
+
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; background: #131325; border-radius: 16px; overflow: hidden; border: 1px solid #2a2a50;">
+                <thead>
+                    <tr>
+                        <th style="padding: 12px 16px; text-align: left; background: rgba(124, 92, 252, 0.08); color: #8888aa;">Название</th>
+                        <th style="padding: 12px 16px; text-align: left; background: rgba(124, 92, 252, 0.08); color: #8888aa;">ID</th>
+                        <th style="padding: 12px 16px; text-align: left; background: rgba(124, 92, 252, 0.08); color: #8888aa;">Действие</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% channels.forEach(ch => { %>
+                        <tr>
+                            <td style="padding: 12px 16px; border-bottom: 1px solid #2a2a50;"><strong><%= ch.channelName %></strong></td>
+                            <td style="padding: 12px 16px; border-bottom: 1px solid #2a2a50;"><code><%= ch.channelId %></code></td>
+                            <td style="padding: 12px 16px; border-bottom: 1px solid #2a2a50;">
+                                <form method="POST" action="/api/admin/youtube/remove" style="display: inline;">
+                                    <input type="hidden" name="channelId" value="<%= ch.channelId %>">
+                                    <button type="submit" style="background: #e74c3c; color: #fff; border: none; padding: 4px 12px; border-radius: 4px; cursor: pointer;">🗑 Удалить</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <footer class="footer">
+        © <%= new Date().getFullYear() %> Discord Bot Panel
+    </footer>
+</body>
+</html>

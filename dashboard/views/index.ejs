@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Главная</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">🤖 BotPanel</a>
+            <div class="nav-menu">
+                <% if (user) { %>
+                    <a href="/dashboard">📊 Панель</a>
+                    <a href="/profile">👤 Профиль</a>
+                    <a href="/shop">🛒 Магазин</a>
+                    <a href="/youtube">📺 YouTube</a>
+                    <a href="/logout" style="color: #ff6b6b;">🚪 Выйти</a>
+                <% } else { %>
+                    <a href="/auth/discord" style="background: #7c5cfc; color: #fff; border-radius: 30px; padding: 6px 20px;">🔑 Войти</a>
+                <% } %>
+            </div>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="hero">
+            <h1>Добро пожаловать!</h1>
+            <p>Управляй сервером и зарабатывай монеты</p>
+            <% if (!user) { %>
+                <a href="/auth/discord" class="btn-primary">🔑 Войти через Discord</a>
+            <% } else { %>
+                <a href="/dashboard" class="btn-primary">🚀 Перейти в панель</a>
+            <% } %>
+        </div>
+        <div class="grid-4">
+            <div class="feature-card">
+                <span class="icon">💰</span>
+                <h4>Экономика</h4>
+                <p>Зарабатывай монеты за активность</p>
+            </div>
+            <div class="feature-card">
+                <span class="icon">🛒</span>
+                <h4>Магазин</h4>
+                <p>Покупай роли и предметы</p>
+            </div>
+            <div class="feature-card">
+                <span class="icon">📨</span>
+                <h4>Рефералы</h4>
+                <p>Приглашай друзей и получай награды</p>
+            </div>
+            <div class="feature-card">
+                <span class="icon">📺</span>
+                <h4>YouTube</h4>
+                <p>Отслеживай новые видео с каналов</p>
+            </div>
+        </div>
+    </div>
+    <footer class="footer">
+        © <%= new Date().getFullYear() %> Discord Bot Panel
+    </footer>
+</body>
+</html>

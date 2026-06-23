@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Панель управления</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">🤖 BotPanel</a>
+            <div class="nav-menu">
+    <a href="/dashboard">📊 Панель</a>
+    <a href="/profile">👤 Профиль</a>
+    <a href="/shop">🛒 Магазин</a>
+    <a href="/youtube">📺 YouTube</a>
+    <% if (user && user.id === '629216255873908736') { %>
+        <a href="/admin" style="color: #fdcb6e;">⚙️ Админ</a>
+    <% } %>
+    <a href="/logout" style="color: #ff6b6b;">🚪 Выйти</a>
+</div>
+        </div>
+    </nav>
+    <div class="container">
+        <h1>📊 Панель управления</h1>
+        <p style="color: #8888aa;">Привет, <strong><%= user.username %></strong>!</p>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-top: 24px;">
+            <a href="/profile" style="background: #131325; padding: 24px; border-radius: 16px; border: 1px solid #2a2a50; text-align: center; text-decoration: none; color: #eee;">
+                <div style="font-size: 2.5rem;">👤</div>
+                <div>Профиль</div>
+            </a>
+            <a href="/shop" style="background: #131325; padding: 24px; border-radius: 16px; border: 1px solid #2a2a50; text-align: center; text-decoration: none; color: #eee;">
+                <div style="font-size: 2.5rem;">🛒</div>
+                <div>Магазин</div>
+            </a>
+            <a href="/youtube" style="background: #131325; padding: 24px; border-radius: 16px; border: 1px solid #2a2a50; text-align: center; text-decoration: none; color: #eee;">
+                <div style="font-size: 2.5rem;">📺</div>
+                <div>YouTube</div>
+            </a>
+        </div>
+
+        <% if (user.id === 'ваш_discord_id') { %>
+            <hr style="border-color: #2a2a50; margin: 32px 0;">
+            <h2>⚙️ Админ-панель</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px;">
+                <a href="/admin/users" style="background: #131325; padding: 24px; border-radius: 16px; border: 1px solid #2a2a50; text-align: center; text-decoration: none; color: #eee;">
+                    <div style="font-size: 2.5rem;">👥</div>
+                    <div>Пользователи</div>
+                </a>
+                <a href="/admin/youtube" style="background: #131325; padding: 24px; border-radius: 16px; border: 1px solid #2a2a50; text-align: center; text-decoration: none; color: #eee;">
+                    <div style="font-size: 2.5rem;">📺</div>
+                    <div>YouTube (админ)</div>
+                </a>
+                <a href="/admin/settings" style="background: #131325; padding: 24px; border-radius: 16px; border: 1px solid #2a2a50; text-align: center; text-decoration: none; color: #eee;">
+                    <div style="font-size: 2.5rem;">⚙️</div>
+                    <div>Настройки</div>
+                </a>
+            </div>
+        <% } %>
+    </div>
+    <footer class="footer">
+        © <%= new Date().getFullYear() %> Discord Bot Panel
+    </footer>
+</body>
+</html>
