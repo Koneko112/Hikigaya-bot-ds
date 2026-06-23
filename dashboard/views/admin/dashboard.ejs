@@ -146,7 +146,60 @@
                 <div class="desc">Конфигурация бота</div>
                 <span class="badge">Система</span>
             </a>
+
+            <!-- ===== НОВАЯ КАРТОЧКА: СОЗДАНИЕ РОЛИ ===== -->
+            <div class="admin-card" style="grid-column: span 2;">
+                <span class="icon">🎨</span>
+                <div class="title">Создать роль</div>
+                <div class="desc">Создай роль и добавь её в магазин</div>
+                
+                <form id="createRoleForm" style="margin-top: 12px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                    <input type="text" id="roleName" placeholder="Название роли" style="flex: 1; padding: 8px 12px; background: #0b0b14; border: 1px solid #2a2a50; border-radius: 6px; color: #eee; min-width: 150px;">
+                    <input type="color" id="roleColor" value="#7c5cfc" style="width: 50px; height: 40px; background: #0b0b14; border: 1px solid #2a2a50; border-radius: 6px; cursor: pointer;">
+                    <button type="submit" style="background: #7c5cfc; color: #fff; border: none; padding: 8px 20px; border-radius: 6px; cursor: pointer;">🎨 Создать</button>
+                </form>
+                <div id="createRoleResult" style="margin-top: 8px; color: #8888aa; font-size: 0.9rem;"></div>
+            </div>
         </div>
     </div>
+
+    <script>
+        // Создание роли
+        document.getElementById('createRoleForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const result = document.getElementById('createRoleResult');
+            const name = document.getElementById('roleName').value.trim();
+            const color = document.getElementById('roleColor').value;
+            
+            if (!name) {
+                result.textContent = '❌ Введите название роли';
+                result.style.color = '#ff6b6b';
+                return;
+            }
+            
+            result.textContent = '⏳ Создание роли...';
+            result.style.color = '#8888aa';
+            
+            try {
+                const response = await fetch('/api/admin/create-role', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, color })
+                });
+                const json = await response.json();
+                
+                result.textContent = json.success ? '✅ ' + json.message : '❌ ' + json.error;
+                result.style.color = json.success ? '#00b894' : '#ff6b6b';
+                
+                if (json.success) {
+                    document.getElementById('roleName').value = '';
+                    setTimeout(() => location.reload(), 2000);
+                }
+            } catch (error) {
+                result.textContent = '❌ Ошибка соединения';
+                result.style.color = '#ff6b6b';
+            }
+        });
+    </script>
 </body>
 </html>
