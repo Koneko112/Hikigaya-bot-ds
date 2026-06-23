@@ -5,7 +5,7 @@
         { "id": 3, "name": "🐉 Питомец", "price": 2000, "description": "Верный спутник", "emoji": "🐉" }
     ],
     "roles": [
-        { "id": "ROLE_ID_1", "name": "🎨 Дизайнер", "price": 1500, "color": "#ff6b6b" },
-        { "id": "ROLE_ID_2", "name": "🎵 Музыкант", "price": 1000, "color": "#4ecdc4" }
+        { "id": "1519032669730635919", "name": "🎨 Дизайнер", "price": 1500, "color": "#ff6b6b" },
+        { "id": "1519032897191809080", "name": "🎵 Музыкант", "price": 1000, "color": "#4ecdc4" }
     ]
 }
