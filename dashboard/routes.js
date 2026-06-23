@@ -626,4 +626,56 @@ router.post('/api/shop/buy-role', isAuthenticated, async (req, res) => {
         res.json({ success: false, error: 'Ошибка сервера: ' + error.message });
     }
 });
+// ============= СОЗДАНИЕ РОЛИ =============
+router.post('/api/admin/create-role', isAdmin, async (req, res) => {
+    try {
+        const { name, color } = req.body;
+        
+        if (!name) {
+            return res.json({ success: false, error: 'Укажите название роли' });
+        }
+        
+        const guildId = '1208677626961727528';
+        const guild = global.discordClient.guilds.cache.get(guildId);
+        if (!guild) {
+            return res.json({ success: false, error: 'Сервер не найден' });
+        }
+        
+        // Создаём роль
+        const role = await guild.roles.create({
+            name: name,
+            color: color || '#99aab5',
+            reason: 'Создана через сайт',
+            permissions: []
+        });
+        
+        // Добавляем в магазин
+        const shopFile = path.join(__dirname, '..', 'data', 'shop.json');
+        let shop = { items: [], roles: [] };
+        if (fs.existsSync(shopFile)) {
+            shop = JSON.parse(fs.readFileSync(shopFile, 'utf8'));
+        }
+        
+        // Проверяем, нет ли уже такой роли
+        if (!shop.roles.find(r => r.id === role.id)) {
+            shop.roles.push({
+                id: role.id,
+                name: role.name,
+                price: 500,
+                color: color || '#99aab5'
+            });
+            fs.writeFileSync(shopFile, JSON.stringify(shop, null, 2));
+        }
+        
+        res.json({ 
+            success: true, 
+            message: `Роль ${role.name} создана и добавлена в магазин за 500 монет!`,
+            roleId: role.id 
+        });
+        
+    } catch (error) {
+        console.error('Ошибка создания роли:', error);
+        res.json({ success: false, error: 'Ошибка сервера: ' + error.message });
+    }
+});
 module.exports = router;
