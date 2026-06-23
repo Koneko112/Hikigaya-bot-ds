@@ -569,6 +569,7 @@ router.get('/invite/:code', async (req, res) => {
     req.session.referrerId = referrerId;
     
     res.render('invite', {
+         user: req.user,
         referrerId: referrerId,
         code: code
     });
