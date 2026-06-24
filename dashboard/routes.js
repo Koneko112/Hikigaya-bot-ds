@@ -351,7 +351,104 @@ router.post('/api/shop/buy', isAuthenticated, (req, res) => {
 });
 
 // ============= API МОДЕРАЦИИ =============
-router.post('/api/admin/mute', isAdmin, async (req, res) => {
+// ============= API ВАРНОВ =============
+router.post('/api/admin/warn', async (req, res) => {
+    // Проверка авторизации
+    if (!req.isAuthenticated()) {
+        return res.json({ success: false, error: 'Не авторизован' });
+    }
+    
+    // Проверка права на варны
+    if (!hasPermission(req.user.id, 'warn')) {
+        return res.json({ success: false, error: 'У вас нет права на варны' });
+    }
+    
+    try {
+        const { userId, reason } = req.body;
+        
+        if (!userId) {
+            return res.json({ success: false, error: 'Укажите ID пользователя' });
+        }
+
+        // Твой код для варнов
+        // Например: добавить варн в warnings.json
+        
+        res.json({ success: true, message: `Варн выдан пользователю` });
+
+    } catch (error) {
+        console.error('❌ Ошибка выдачи варна:', error);
+        res.json({ success: false, error: 'Ошибка сервера: ' + error.message });
+    }
+});
+// ============= API БАНА =============
+router.post('/api/admin/ban', async (req, res) => {
+    // Проверка авторизации
+    if (!req.isAuthenticated()) {
+        return res.json({ success: false, error: 'Не авторизован' });
+    }
+    
+    // Проверка права на бан
+    if (!hasPermission(req.user.id, 'ban')) {
+        return res.json({ success: false, error: 'У вас нет права на бан' });
+    }
+    
+    try {
+        const { userId, reason } = req.body;
+        
+        if (!userId) {
+            return res.json({ success: false, error: 'Укажите ID пользователя' });
+        }
+
+        console.log(`📩 Запрос на бан: userId=${userId}, reason=${reason || 'Не указана'}`);
+
+        const guildId = '1208677626961727528'; // ⚠️ ЗАМЕНИ НА ID СВОЕГО СЕРВЕРА
+        const guild = global.discordClient.guilds.cache.get(guildId);
+        
+        if (!guild) {
+            console.error('❌ Сервер не найден');
+            return res.json({ success: false, error: 'Сервер не найден' });
+        }
+
+        // Загружаем участника
+        let member;
+        try {
+            member = await guild.members.fetch(userId);
+        } catch (fetchError) {
+            console.error('❌ Пользователь не найден:', fetchError.message);
+            return res.json({ success: false, error: 'Пользователь не найден на сервере' });
+        }
+
+        if (!member) {
+            return res.json({ success: false, error: 'Пользователь не найден' });
+        }
+
+        // Проверяем, можно ли забанить
+        if (!member.bannable) {
+            return res.json({ success: false, error: 'Бот не может забанить этого пользователя (роль выше или нет прав)' });
+        }
+
+        // Баним
+        await member.ban({ reason: reason || 'Бан через сайт' });
+        
+        console.log(`✅ Пользователь ${member.user.username} забанен`);
+        res.json({ success: true, message: `Пользователь ${member.user.username} забанен` });
+
+    } catch (error) {
+        console.error('❌ Ошибка бана:', error);
+        res.json({ success: false, error: 'Ошибка сервера: ' + error.message });
+    }
+});
+router.post('/api/admin/mute', async (req, res) => {
+    // Проверка авторизации
+    if (!req.isAuthenticated()) {
+        return res.json({ success: false, error: 'Не авторизован' });
+    }
+    
+    // Проверка права на мут
+    if (!hasPermission(req.user.id, 'mute')) {
+        return res.json({ success: false, error: 'У вас нет права на мут' });
+    }
+    
     try {
         const { userId, duration, reason } = req.body;
         
@@ -408,6 +505,7 @@ router.post('/api/admin/mute', isAdmin, async (req, res) => {
         console.error('❌ Ошибка мута:', error);
         res.json({ success: false, error: 'Ошибка сервера: ' + error.message });
     }
+    
 });
 router.post('/api/admin/role', isAdmin, async (req, res) => {
     try {
@@ -844,5 +942,4 @@ router.get('/api/users/search', isAdmin, async (req, res) => {
     }
 });
 
-module.exports = router;
 module.exports = router;
