@@ -146,8 +146,16 @@ function isAuthenticated(req, res, next) {
 
 function isAdmin(req, res, next) {
     if (!req.isAuthenticated()) return res.redirect('/');
-    const adminIds = ['629216255873908736','1091889146265604117' ]; // 
-    if (adminIds.includes(req.user.id)) return next();
+    
+    const userId = req.user.id;
+    const adminIds = ['629216255873908736', '1091889146265604117'];
+    if (adminIds.includes(userId)) return next();
+    
+    // Проверяем через систему ролей сайта
+    if (hasPermission(userId, 'mute') || hasPermission(userId, 'ban') || hasPermission(userId, 'roles')) {
+        return next();
+    }
+    
     res.redirect('/');
 }
 
