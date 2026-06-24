@@ -927,15 +927,13 @@ router.get('/api/users/search', isAdmin, async (req, res) => {
     const query = req.query.q?.toLowerCase() || '';
     try {
         const guildId = '1208677626961727528';
-        const guild = global.discordClient.guilds.cache.get(guildId);
-        if (!guild) return res.json({ users: [] });
+        const members = await getCachedMembers(guildId);
         
-        await guild.members.fetch();
-        const members = guild.members.cache
-            .filter(m => m.user.username.toLowerCase().includes(query) || m.id.includes(query))
-            .map(m => ({ id: m.id, username: m.user.username, avatar: m.user.displayAvatarURL() }))
+        const filtered = members
+            .filter(m => m.username.toLowerCase().includes(query) || m.id.includes(query))
             .slice(0, 20);
-        res.json({ users: members });
+        
+        res.json({ users: filtered });
     } catch (error) {
         console.error('Ошибка поиска:', error);
         res.json({ users: [] });
@@ -947,25 +945,13 @@ router.get('/moderation', async (req, res) => {
         return res.redirect('/');
     }
     
-    // Проверяем, есть ли право на мут или бан
     if (!hasPermission(req.user.id, 'mute') && !hasPermission(req.user.id, 'ban')) {
         return res.redirect('/');
     }
     
     try {
         const guildId = '1208677626961727528';
-        const guild = global.discordClient.guilds.cache.get(guildId);
-        if (!guild) {
-            return res.status(404).send('Сервер не найден');
-        }
-        
-        await guild.members.fetch();
-        const members = guild.members.cache.map(m => ({
-            id: m.id,
-            username: m.user.username,
-            avatar: m.user.displayAvatarURL(),
-            joinedAt: m.joinedAt
-        }));
+        const members = await getCachedMembers(guildId);
         
         res.render('moderation', { 
             user: req.user, 
