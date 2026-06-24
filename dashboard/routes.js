@@ -6,6 +6,41 @@ const configManager = require('../config/configManager');
 const fs = require('fs');
 const path = require('path');
 const adminIds = ['629216255873908736', '1091889146265604117'];
+// ============= СИСТЕМА РОЛЕЙ НА САЙТЕ =============
+const siteRolesFile = path.join(__dirname, '..', 'data', 'site-roles.json');
+
+function loadSiteRoles() {
+    if (!fs.existsSync(siteRolesFile)) {
+        fs.writeFileSync(siteRolesFile, JSON.stringify({ roles: [], users: {} }));
+        return { roles: [], users: {} };
+    }
+    return JSON.parse(fs.readFileSync(siteRolesFile, 'utf8'));
+}
+
+function saveSiteRoles(data) {
+    fs.writeFileSync(siteRolesFile, JSON.stringify(data, null, 2));
+}
+
+function getUserSiteRoles(userId) {
+    const data = loadSiteRoles();
+    return data.users[userId] || [];
+}
+
+function hasPermission(userId, permission) {
+    const data = loadSiteRoles();
+    const userRoles = data.users[userId] || [];
+    for (const roleId of userRoles) {
+        const role = data.roles.find(r => r.id === roleId);
+        if (role && role.permissions && role.permissions.includes(permission)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function isSiteAdmin(userId) {
+    return hasPermission(userId, 'admin') || hasPermission(userId, 'roles');
+}
 // ============= ПРОВЕРКА КЛИЕНТА =============
 function getDiscordClient() {
     if (!global.discordClient) {
