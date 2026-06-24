@@ -102,13 +102,66 @@
                 <div class="label">💰 Всего монет</div>
             </div>
         </div>
- <!-- ===== НОВАЯ КАРТОЧКА ===== -->
-    <a href="/admin/roles" class="admin-card">
-        <span class="icon">🎭</span>
-        <div class="title">Роли сайта</div>
-        <div class="desc">Управление правами</div>
-        <span class="badge">Доступ</span>
-    </a>
+ <a href="/admin/roles" class="admin-card" style="
+    background: linear-gradient(145deg, #1a1a2e, #131325);
+    border-radius: 16px;
+    border: 2px solid #7c5cfc;
+    padding: 24px 16px;
+    text-align: center;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: #eee;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(124, 92, 252, 0.15);
+">
+    <!-- Акцент сверху -->
+    <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #7c5cfc, #a29bfe);"></div>
+    
+    <!-- Иконка -->
+    <div style="
+        font-size: 2.8rem;
+        display: inline-block;
+        width: 64px;
+        height: 64px;
+        line-height: 64px;
+        border-radius: 50%;
+        background: rgba(124, 92, 252, 0.15);
+        border: 2px solid rgba(124, 92, 252, 0.3);
+        margin-bottom: 8px;
+        transition: 0.3s;
+    ">🎭</div>
+    
+    <!-- Название -->
+    <div style="font-weight: 600; font-size: 1rem; color: #fff;">Роли сайта</div>
+    
+    <!-- Описание -->
+    <div style="color: #8888aa; font-size: 0.85rem; margin-top: 4px;">Управление правами</div>
+    
+    <!-- Бейдж -->
+    <div style="
+        display: inline-block;
+        background: rgba(124, 92, 252, 0.15);
+        color: #7c5cfc;
+        padding: 2px 16px;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        margin-top: 8px;
+        border: 1px solid rgba(124, 92, 252, 0.1);
+    ">Доступ</div>
+    
+    <!-- Эффект при наведении -->
+    <div style="
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, #7c5cfc, transparent);
+        opacity: 0;
+        transition: 0.3s;
+    "></div>
+</a>+
         <!-- КАРТОЧКИ АДМИНКИ -->
         <div class="admin-grid">
             <a href="/admin/users" class="admin-card">
