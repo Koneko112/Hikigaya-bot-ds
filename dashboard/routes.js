@@ -151,8 +151,9 @@ function isAdmin(req, res, next) {
     const adminIds = ['629216255873908736', '1091889146265604117'];
     if (adminIds.includes(userId)) return next();
     
-    // Проверяем через систему ролей сайта
-    if (hasPermission(userId, 'mute') || hasPermission(userId, 'ban') || hasPermission(userId, 'roles')) {
+    // Проверяем, есть ли у пользователя право "admin" или "roles"
+    // Только они дают доступ ко всей админке
+    if (hasPermission(userId, 'admin') || hasPermission(userId, 'roles')) {
         return next();
     }
     
