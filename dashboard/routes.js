@@ -750,4 +750,98 @@ router.post('/api/admin/create-role', isAdmin, async (req, res) => {
         res.json({ success: false, error: 'Ошибка сервера: ' + error.message });
     }
 });
+// ============= УПРАВЛЕНИЕ РОЛЯМИ НА САЙТЕ =============
+router.get('/admin/roles', isAdmin, (req, res) => {
+    const data = loadSiteRoles();
+    res.render('admin/roles', { 
+        user: req.user, 
+        roles: data.roles, 
+        users: data.users
+    });
+});
+
+router.post('/api/admin/roles/create', isAdmin, (req, res) => {
+    const { name, permissions } = req.body;
+    if (!name) return res.json({ success: false, error: 'Укажите название роли' });
+    
+    const data = loadSiteRoles();
+    const id = name.toLowerCase().replace(/\s/g, '-');
+    
+    if (data.roles.find(r => r.id === id)) {
+        return res.json({ success: false, error: 'Роль с таким ID уже существует' });
+    }
+    
+    const perms = permissions ? permissions.split(',').map(p => p.trim()) : [];
+    data.roles.push({ id, name, permissions: perms });
+    saveSiteRoles(data);
+    res.json({ success: true, message: `Роль "${name}" создана!` });
+});
+
+router.post('/api/admin/roles/assign', isAdmin, (req, res) => {
+    const { userId, roleId } = req.body;
+    if (!userId || !roleId) return res.json({ success: false, error: 'Укажите пользователя и роль' });
+    
+    const data = loadSiteRoles();
+    if (!data.roles.find(r => r.id === roleId)) {
+        return res.json({ success: false, error: 'Роль не найдена' });
+    }
+    
+    if (!data.users[userId]) data.users[userId] = [];
+    if (data.users[userId].includes(roleId)) {
+        return res.json({ success: false, error: 'У пользователя уже есть эта роль' });
+    }
+    
+    data.users[userId].push(roleId);
+    saveSiteRoles(data);
+    res.json({ success: true, message: `Роль назначена!` });
+});
+
+router.post('/api/admin/roles/remove', isAdmin, (req, res) => {
+    const { userId, roleId } = req.body;
+    if (!userId || !roleId) return res.json({ success: false, error: 'Укажите пользователя и роль' });
+    
+    const data = loadSiteRoles();
+    if (data.users[userId]) {
+        data.users[userId] = data.users[userId].filter(r => r !== roleId);
+        if (data.users[userId].length === 0) delete data.users[userId];
+        saveSiteRoles(data);
+    }
+    res.json({ success: true, message: `Роль убрана!` });
+});
+
+router.post('/api/admin/roles/delete', isAdmin, (req, res) => {
+    const { roleId } = req.body;
+    if (!roleId) return res.json({ success: false, error: 'Укажите ID роли' });
+    
+    const data = loadSiteRoles();
+    data.roles = data.roles.filter(r => r.id !== roleId);
+    for (const userId in data.users) {
+        data.users[userId] = data.users[userId].filter(r => r !== roleId);
+        if (data.users[userId].length === 0) delete data.users[userId];
+    }
+    saveSiteRoles(data);
+    res.json({ success: true, message: `Роль удалена!` });
+});
+
+// ============= ПОИСК ПОЛЬЗОВАТЕЛЕЙ =============
+router.get('/api/users/search', isAdmin, async (req, res) => {
+    const query = req.query.q?.toLowerCase() || '';
+    try {
+        const guildId = '1208677626961727528';
+        const guild = global.discordClient.guilds.cache.get(guildId);
+        if (!guild) return res.json({ users: [] });
+        
+        await guild.members.fetch();
+        const members = guild.members.cache
+            .filter(m => m.user.username.toLowerCase().includes(query) || m.id.includes(query))
+            .map(m => ({ id: m.id, username: m.user.username, avatar: m.user.displayAvatarURL() }))
+            .slice(0, 20);
+        res.json({ users: members });
+    } catch (error) {
+        console.error('Ошибка поиска:', error);
+        res.json({ users: [] });
+    }
+});
+
+module.exports = router;
 module.exports = router;
