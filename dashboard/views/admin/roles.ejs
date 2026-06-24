@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Управление ролями сайта</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        .roles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 16px;
+        }
+        .role-card {
+            background: #131325;
+            border-radius: 16px;
+            border: 1px solid #2a2a50;
+            padding: 20px;
+        }
+        .role-card h3 {
+            color: #7c5cfc;
+            margin-bottom: 8px;
+        }
+        .role-card .perms {
+            color: #8888aa;
+            font-size: 0.85rem;
+        }
+        .role-card .perms span {
+            display: inline-block;
+            background: rgba(124, 92, 252, 0.1);
+            color: #7c5cfc;
+            padding: 2px 10px;
+            border-radius: 12px;
+            margin: 2px 4px 2px 0;
+            font-size: 0.75rem;
+        }
+        .user-tag {
+            display: inline-block;
+            background: rgba(124, 92, 252, 0.15);
+            color: #7c5cfc;
+            padding: 2px 12px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin: 2px 4px;
+        }
+        .btn-danger {
+            background: #e74c3c;
+            color: #fff;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+        .btn-sm {
+            padding: 4px 12px;
+            font-size: 0.8rem;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-success {
+            background: #00b894;
+            color: #fff;
+        }
+        .btn-success:hover {
+            background: #00d4aa;
+        }
+        .btn-primary {
+            background: #7c5cfc;
+            color: #fff;
+        }
+        .btn-primary:hover {
+            background: #9b7cff;
+        }
+        .form-inline {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .form-inline input, .form-inline select {
+            padding: 6px 12px;
+            background: #0b0b14;
+            border: 1px solid #2a2a50;
+            border-radius: 6px;
+            color: #eee;
+        }
+        .form-inline button {
+            padding: 6px 16px;
+        }
+        #userSearchResults::-webkit-scrollbar {
+            width: 6px;
+        }
+        #userSearchResults::-webkit-scrollbar-track {
+            background: #0b0b14;
+        }
+        #userSearchResults::-webkit-scrollbar-thumb {
+            background: #2a2a50;
+            border-radius: 3px;
+        }
+        .user-result {
+            padding: 8px 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid #2a2a50;
+            transition: 0.2s;
+        }
+        .user-result:hover {
+            background: rgba(124, 92, 252, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">🤖 BotPanel</a>
+            <div class="nav-menu">
+                <a href="/dashboard">📊 Панель</a>
+                <a href="/profile">👤 Профиль</a>
+                <a href="/shop">🛒 Магазин</a>
+                <a href="/youtube">📺 YouTube</a>
+                <a href="/admin" style="color: #fdcb6e;">⚙️ Админ</a>
+                <a href="/logout" style="color: #ff6b6b;">🚪 Выйти</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>🎭 Управление ролями сайта</h1>
+        <p><a href="/admin" style="color: #8888aa;">← Назад в админку</a></p>
+
+        <!-- ===== СОЗДАНИЕ РОЛИ ===== -->
+        <div class="card" style="margin-bottom: 24px;">
+            <h3>➕ Создать роль</h3>
+            <form id="createRoleForm" class="form-inline">
+                <input type="text" id="roleName" placeholder="Название роли" required>
+                <input type="text" id="rolePermissions" placeholder="Права: mute, ban, warn, roles, settings">
+                <button type="submit" class="btn-primary btn-sm">Создать</button>
+            </form>
+            <div id="createResult" style="margin-top: 8px; color: #8888aa;"></div>
+        </div>
+
+        <!-- ===== СПИСОК РОЛЕЙ ===== -->
+        <h2>📋 Существующие роли</h2>
+        <div class="roles-grid">
+            <% if (roles && roles.length > 0) { %>
+                <% roles.forEach(role => { %>
+                    <div class="role-card">
+                        <h3>🎭 <%= role.name %></h3>
+                        <div class="perms">
+                            Права: 
+                            <% if (role.permissions && role.permissions.length > 0) { %>
+                                <% role.permissions.forEach(p => { %>
+                                    <span><%= p %></span>
+                                <% }); %>
+                            <% } else { %>
+                                <span style="color: #555;">Нет прав</span>
+                            <% } %>
+                        </div>
+                        <div style="margin-top: 8px;">
+                            <strong style="color: #8888aa; font-size: 0.85rem;">ID:</strong> 
+                            <code style="font-size: 0.75rem;"><%= role.id %></code>
+                        </div>
+                        <div style="margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap;">
+                            <form method="POST" action="/api/admin/roles/delete" style="display: inline;" onsubmit="return confirm('Удалить роль <%= role.name %>?')">
+                                <input type="hidden" name="roleId" value="<%= role.id %>">
+                                <button type="submit" class="btn-danger btn-sm">🗑 Удалить роль</button>
+                            </form>
+                        </div>
+                    </div>
+                <% }); %>
+            <% } else { %>
+                <p style="color: #8888aa;">Ролей пока нет. Создайте первую!</p>
+            <% } %>
+        </div>
+
+        <!-- ===== НАЗНАЧЕНИЕ РОЛИ ===== -->
+        <h2 style="margin-top: 32px;">👥 Назначить роль пользователю</h2>
+        <div class="card">
+            <form id="assignRoleForm" class="form-inline">
+                <div style="position: relative; flex: 1; min-width: 200px;">
+                    <input type="text" id="userSearch" placeholder="Введите имя пользователя..." style="width: 100%; padding: 8px 12px; background: #0b0b14; border: 1px solid #2a2a50; border-radius: 6px; color: #eee;">
+                    <div id="userSearchResults" style="position: absolute; top: 100%; left: 0; right: 0; background: #131325; border: 1px solid #2a2a50; border-radius: 6px; max-height: 200px; overflow-y: auto; display: none; z-index: 100; margin-top: 4px;"></div>
+                    <input type="hidden" id="assignUserId" required>
+                </div>
+                
+                <select id="assignRoleId" style="padding: 8px 12px; background: #0b0b14; border: 1px solid #2a2a50; border-radius: 6px; color: #eee;">
+                    <% if (roles && roles.length > 0) { %>
+                        <% roles.forEach(role => { %>
+                            <option value="<%= role.id %>"><%= role.name %></option>
+                        <% }); %>
+                    <% } %>
+                </select>
+                
+                <button type="submit" class="btn-success btn-sm">✅ Назначить</button>
+            </form>
+            <div id="assignResult" style="margin-top: 8px; color: #8888aa;"></div>
+        </div>
+
+        <!-- ===== ПОЛЬЗОВАТЕЛИ С РОЛЯМИ ===== -->
+        <h2 style="margin-top: 32px;">👥 Пользователи с ролями</h2>
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID пользователя</th>
+                        <th>Роли</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (users && Object.keys(users).length > 0) { %>
+                        <% for (const [userId, userRoles] of Object.entries(users)) { %>
+                            <tr>
+                                <td><code><%= userId %></code></td>
+                                <td>
+                                    <% userRoles.forEach(roleId => { %>
+                                        <span class="user-tag">
+                                            <%= (roles || []).find(r => r.id === roleId)?.name || roleId %>
+                                        </span>
+                                    <% }); %>
+                                </td>
+                                <td>
+                                    <form method="POST" action="/api/admin/roles/remove" style="display: inline;">
+                                        <input type="hidden" name="userId" value="<%= userId %>">
+                                        <select name="roleId" style="padding: 4px 8px; background: #0b0b14; border: 1px solid #2a2a50; border-radius: 4px; color: #eee;">
+                                            <% userRoles.forEach(roleId => { %>
+                                                <option value="<%= roleId %>">
+                                                    <%= (roles || []).find(r => r.id === roleId)?.name || roleId %>
+                                                </option>
+                                            <% }); %>
+                                        </select>
+                                        <button type="submit" class="btn-danger btn-sm">Убрать</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    <% } else { %>
+                        <tr><td colspan="3" style="text-align: center; color: #8888aa;">Нет пользователей с ролями</td></tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // ===== СОЗДАНИЕ РОЛИ =====
+        document.getElementById('createRoleForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const result = document.getElementById('createResult');
+            const name = document.getElementById('roleName').value.trim();
+            const permissions = document.getElementById('rolePermissions').value.trim();
+            
+            result.textContent = '⏳ Создание...';
+            result.style.color = '#8888aa';
+            
+            try {
+                const response = await fetch('/api/admin/roles/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, permissions })
+                });
+                const json = await response.json();
+                result.textContent = json.success ? '✅ ' + json.message : '❌ ' + json.error;
+                result.style.color = json.success ? '#00b894' : '#ff6b6b';
+                if (json.success) setTimeout(() => location.reload(), 1500);
+            } catch (error) {
+                result.textContent = '❌ Ошибка соединения';
+                result.style.color = '#ff6b6b';
+            }
+        });
+
+        // ===== ПОИСК ПОЛЬЗОВАТЕЛЕЙ =====
+        const searchInput = document.getElementById('userSearch');
+        const searchResults = document.getElementById('userSearchResults');
+        const hiddenUserId = document.getElementById('assignUserId');
+        let searchTimeout;
+        
+        searchInput.addEventListener('input', async function() {
+            const query = this.value.trim();
+            clearTimeout(searchTimeout);
+            
+            if (query.length < 2) {
+                searchResults.style.display = 'none';
+                return;
+            }
+            
+            searchTimeout = setTimeout(async () => {
+                try {
+                    const response = await fetch(`/api/users/search?q=${encodeURIComponent(query)}`);
+                    const data = await response.json();
+                    
+                    if (data.users.length === 0) {
+                        searchResults.innerHTML = '<div style="padding: 8px 12px; color: #8888aa;">Пользователи не найдены</div>';
+                        searchResults.style.display = 'block';
+                        return;
+                    }
+                    
+                    searchResults.innerHTML = data.users.map(user => `
+                        <div class="user-result" data-userid="${user.id}">
+                            <img src="${user.avatar}" style="width: 28px; height: 28px; border-radius: 50%;">
+                            <span><strong>${user.username}</strong></span>
+                            <span style="color: #8888aa; font-size: 0.75rem;">${user.id}</span>
+                        </div>
+                    `).join('');
+                    
+                    searchResults.style.display = 'block';
+                    
+                    document.querySelectorAll('.user-result').forEach(el => {
+                        el.addEventListener('click', function() {
+                            const userId = this.dataset.userid;
+                            const username = this.querySelector('strong').textContent;
+                            searchInput.value = username;
+                            hiddenUserId.value = userId;
+                            searchResults.style.display = 'none';
+                        });
+                    });
+                } catch (error) {
+                    console.error('Ошибка поиска:', error);
+                }
+            }, 300);
+        });
+        
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('#userSearch') && !e.target.closest('#userSearchResults')) {
+                searchResults.style.display = 'none';
+            }
+        });
+
+        // ===== НАЗНАЧЕНИЕ РОЛИ =====
+        document.getElementById('assignRoleForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const result = document.getElementById('assignResult');
+            const userId = hiddenUserId.value.trim();
+            const roleId = document.getElementById('assignRoleId').value;
+            
+            if (!userId) {
+                result.textContent = '❌ Выберите пользователя из списка';
+                result.style.color = '#ff6b6b';
+                return;
+            }
+            
+            result.textContent = '⏳ Назначение...';
+            result.style.color = '#8888aa';
+            
+            try {
+                const response = await fetch('/api/admin/roles/assign', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId, roleId })
+                });
+                const json = await response.json();
+                result.textContent = json.success ? '✅ ' + json.message : '❌ ' + json.error;
+                result.style.color = json.success ? '#00b894' : '#ff6b6b';
+                if (json.success) setTimeout(() => location.reload(), 1500);
+            } catch (error) {
+                result.textContent = '❌ Ошибка соединения';
+                result.style.color = '#ff6b6b';
+            }
+        });
+    </script>
+</body>
+</html>
