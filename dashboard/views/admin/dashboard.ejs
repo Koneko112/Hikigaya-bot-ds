@@ -102,66 +102,7 @@
                 <div class="label">💰 Всего монет</div>
             </div>
         </div>
- <a href="/admin/roles" class="admin-card" style="
-    background: linear-gradient(145deg, #1a1a2e, #131325);
-    border-radius: 16px;
-    border: 2px solid #7c5cfc;
-    padding: 24px 16px;
-    text-align: center;
-    transition: all 0.3s ease;
-    text-decoration: none;
-    color: #eee;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 4px 20px rgba(124, 92, 252, 0.15);
-">
-    <!-- Акцент сверху -->
-    <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #7c5cfc, #a29bfe);"></div>
-    
-    <!-- Иконка -->
-    <div style="
-        font-size: 2.8rem;
-        display: inline-block;
-        width: 64px;
-        height: 64px;
-        line-height: 64px;
-        border-radius: 50%;
-        background: rgba(124, 92, 252, 0.15);
-        border: 2px solid rgba(124, 92, 252, 0.3);
-        margin-bottom: 8px;
-        transition: 0.3s;
-    ">🎭</div>
-    
-    <!-- Название -->
-    <div style="font-weight: 600; font-size: 1rem; color: #fff;">Роли сайта</div>
-    
-    <!-- Описание -->
-    <div style="color: #8888aa; font-size: 0.85rem; margin-top: 4px;">Управление правами</div>
-    
-    <!-- Бейдж -->
-    <div style="
-        display: inline-block;
-        background: rgba(124, 92, 252, 0.15);
-        color: #7c5cfc;
-        padding: 2px 16px;
-        border-radius: 20px;
-        font-size: 0.7rem;
-        margin-top: 8px;
-        border: 1px solid rgba(124, 92, 252, 0.1);
-    ">Доступ</div>
-    
-    <!-- Эффект при наведении -->
-    <div style="
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background: linear-gradient(90deg, transparent, #7c5cfc, transparent);
-        opacity: 0;
-        transition: 0.3s;
-    "></div>
-</a>+
+
         <!-- КАРТОЧКИ АДМИНКИ -->
         <div class="admin-grid">
             <a href="/admin/users" class="admin-card">
@@ -199,66 +140,20 @@
                 <span class="badge">Отслеживание</span>
             </a>
 
+            <a href="/admin/roles" class="admin-card">
+                <span class="icon">🎭</span>
+                <div class="title">Роли сайта</div>
+                <div class="desc">Управление правами</div>
+                <span class="badge">Доступ</span>
+            </a>
+
             <a href="/admin/settings" class="admin-card">
                 <span class="icon">⚙️</span>
                 <div class="title">Настройки</div>
                 <div class="desc">Конфигурация бота</div>
                 <span class="badge">Система</span>
             </a>
-
-            <!-- ===== НОВАЯ КАРТОЧКА: СОЗДАНИЕ РОЛИ ===== -->
-            <div class="admin-card" style="grid-column: span 2;">
-                <span class="icon">🎨</span>
-                <div class="title">Создать роль</div>
-                <div class="desc">Создай роль и добавь её в магазин</div>
-                
-                <form id="createRoleForm" style="margin-top: 12px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
-                    <input type="text" id="roleName" placeholder="Название роли" style="flex: 1; padding: 8px 12px; background: #0b0b14; border: 1px solid #2a2a50; border-radius: 6px; color: #eee; min-width: 150px;">
-                    <input type="color" id="roleColor" value="#7c5cfc" style="width: 50px; height: 40px; background: #0b0b14; border: 1px solid #2a2a50; border-radius: 6px; cursor: pointer;">
-                    <button type="submit" style="background: #7c5cfc; color: #fff; border: none; padding: 8px 20px; border-radius: 6px; cursor: pointer;">🎨 Создать</button>
-                </form>
-                <div id="createRoleResult" style="margin-top: 8px; color: #8888aa; font-size: 0.9rem;"></div>
-            </div>
         </div>
     </div>
-
-    <script>
-        // Создание роли
-        document.getElementById('createRoleForm')?.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const result = document.getElementById('createRoleResult');
-            const name = document.getElementById('roleName').value.trim();
-            const color = document.getElementById('roleColor').value;
-            
-            if (!name) {
-                result.textContent = '❌ Введите название роли';
-                result.style.color = '#ff6b6b';
-                return;
-            }
-            
-            result.textContent = '⏳ Создание роли...';
-            result.style.color = '#8888aa';
-            
-            try {
-                const response = await fetch('/api/admin/create-role', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, color })
-                });
-                const json = await response.json();
-                
-                result.textContent = json.success ? '✅ ' + json.message : '❌ ' + json.error;
-                result.style.color = json.success ? '#00b894' : '#ff6b6b';
-                
-                if (json.success) {
-                    document.getElementById('roleName').value = '';
-                    setTimeout(() => location.reload(), 2000);
-                }
-            } catch (error) {
-                result.textContent = '❌ Ошибка соединения';
-                result.style.color = '#ff6b6b';
-            }
-        });
-    </script>
 </body>
 </html>
