@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Создать роль</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        .create-role-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .create-role-container .card {
+            padding: 30px;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            color: #8888aa;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px 14px;
+            background: #0b0b14;
+            border: 1px solid #2a2a50;
+            border-radius: 8px;
+            color: #eee;
+            font-size: 1rem;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #7c5cfc;
+        }
+        .form-group input[type="color"] {
+            height: 50px;
+            padding: 4px;
+            cursor: pointer;
+        }
+        .btn-submit {
+            background: #7c5cfc;
+            color: #fff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1rem;
+            transition: 0.3s;
+        }
+        .btn-submit:hover {
+            background: #9b7cff;
+            transform: scale(1.02);
+        }
+        .btn-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .result-msg {
+            margin-top: 16px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .result-msg.success {
+            background: rgba(0, 184, 148, 0.1);
+            color: #00b894;
+            border: 1px solid rgba(0, 184, 148, 0.2);
+        }
+        .result-msg.error {
+            background: rgba(231, 76, 60, 0.1);
+            color: #ff6b6b;
+            border: 1px solid rgba(231, 76, 60, 0.2);
+        }
+        .info-box {
+            background: rgba(124, 92, 252, 0.08);
+            border: 1px solid rgba(124, 92, 252, 0.15);
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            color: #8888aa;
+            font-size: 0.9rem;
+        }
+        .info-box strong {
+            color: #7c5cfc;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">🤖 BotPanel</a>
+            <div class="nav-menu">
+                <a href="/dashboard">📊 Панель</a>
+                <a href="/profile">👤 Профиль</a>
+                <a href="/shop">🛒 Магазин</a>
+                <a href="/youtube">📺 YouTube</a>
+                <a href="/admin" style="color: #fdcb6e;">⚙️ Админ</a>
+                <a href="/logout" style="color: #ff6b6b;">🚪 Выйти</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container create-role-container">
+        <p><a href="/admin" style="color: #8888aa;">← Назад в админку</a></p>
+
+        <div class="card">
+            <h1>🎨 Создать роль для Discord</h1>
+            <p style="color: #8888aa; margin-bottom: 20px;">
+                Роль будет создана на сервере и автоматически добавлена в магазин за 500 монет.
+            </p>
+
+            <div class="info-box">
+                💡 <strong>Важно:</strong> Роль появится в магазине после создания. Пользователи смогут купить её за монеты.
+            </div>
+
+            <form id="createRoleForm">
+                <div class="form-group">
+                    <label>Название роли</label>
+                    <input type="text" id="roleName" placeholder="Например: 🎨 Художник" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Цвет роли</label>
+                    <input type="color" id="roleColor" value="#7c5cfc">
+                </div>
+
+                <button type="submit" class="btn-submit" id="submitBtn">🎨 Создать роль</button>
+            </form>
+
+            <div id="result" class="result-msg" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('createRoleForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const btn = document.getElementById('submitBtn');
+            const result = document.getElementById('result');
+            const name = document.getElementById('roleName').value.trim();
+            const color = document.getElementById('roleColor').value;
+            
+            if (!name) {
+                result.style.display = 'block';
+                result.className = 'result-msg error';
+                result.textContent = '❌ Введите название роли';
+                return;
+            }
+            
+            btn.disabled = true;
+            btn.textContent = '⏳ Создание...';
+            result.style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/admin/create-role', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, color })
+                });
+                
+                const json = await response.json();
+                
+                result.style.display = 'block';
+                
+                if (json.success) {
+                    result.className = 'result-msg success';
+                    result.textContent = '✅ ' + json.message;
+                    document.getElementById('roleName').value = '';
+                    
+                    // Обновляем список ролей через 2 секунды
+                    setTimeout(() => {
+                        window.location.href = '/shop';
+                    }, 2000);
+                } else {
+                    result.className = 'result-msg error';
+                    result.textContent = '❌ ' + json.error;
+                }
+            } catch (error) {
+                result.style.display = 'block';
+                result.className = 'result-msg error';
+                result.textContent = '❌ Ошибка соединения: ' + error.message;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '🎨 Создать роль';
+            }
+        });
+    </script>
+</body>
+</html>
