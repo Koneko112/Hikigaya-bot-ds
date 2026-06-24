@@ -964,4 +964,8 @@ router.get('/moderation', async (req, res) => {
         res.status(500).send('Ошибка загрузки участников');
     }
 });
+// ============= СТРАНИЦА СОЗДАНИЯ РОЛИ =============
+router.get('/admin/create-role', isAdmin, (req, res) => {
+    res.render('admin/create-role', { user: req.user });
+});
 module.exports = router;
