@@ -52,12 +52,10 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: {
-        secure: false, // если используешь HTTPS, поставь true
-        maxAge: 1000 * 60 * 60 * 24 * 7 // 7 дней
+        secure: false,
+        maxAge: 1000 * 60 * 60 * 24 * 7
     }
 }));
-
-
 
 // ====== PASSPORT ======
 app.use(passport.initialize());
@@ -81,8 +79,6 @@ app.use('/', routes);
 
 // ====== ЗАПУСК ======
 const PORT = process.env.PORT || 3000;
-
-client.login(process.env.TOKEN);
 
 const { checkYouTubeRSS } = require('./utils/youtubeRSS');
 const { checkTelegram } = require('./utils/simpleTelegram');
@@ -123,20 +119,4 @@ client.once('clientReady', () => {
     setInterval(() => {
         checkTelegram(client);
     }, 60000);
-}); // ← ЭТА СКОБКА ЗАКРЫВАЕТ client.once
-
-
-// Функция для получения локального IP
-function getLocalIP() {
-    const os = require('os');
-    const interfaces = os.networkInterfaces();
-    for (const name of Object.keys(interfaces)) {
-        for (const iface of interfaces[name]) {
-            if (iface.family === 'IPv4' && !iface.internal) {
-                return iface.address;
-            }
-        }
-    }
-    return '127.0.0.1';
-}
 });
