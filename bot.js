@@ -101,18 +101,19 @@ function getLocalIP() {
     return '127.0.0.1';
 }
 
+// Запускаем веб-сервер СРАЗУ
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🌐 Панель запущена → http://localhost:${PORT}`);
+    console.log(`📱 Доступно для друзей → http://${getLocalIP()}:${PORT}`);
+});
+
+// А бота подключаем отдельно
 client.login(process.env.TOKEN);
 
 client.once('clientReady', () => {
     console.log(`✅ Бот запущен как ${client.user.tag}`);
     console.log(`📊 Серверов: ${client.guilds.cache.size}`);
-    
-    // Запускаем веб-сервер
-    app.listen(PORT, '0.0.0.0', () => {
-        console.log(`🌐 Панель запущена → http://localhost:${PORT}`);
-        console.log(`📱 Доступно для друзей → http://${getLocalIP()}:${PORT}`);
-    });
-
+});
     // YouTube отслеживание (каждые 5 минут)
     setInterval(() => {
         checkYouTubeRSS(client);
