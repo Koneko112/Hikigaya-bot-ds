@@ -1,3 +1,4 @@
+console.log('🚀 Бот пытается запуститься...');
 const express = require('express');
 const session = require('express-session'); 
 require('dotenv').config();
@@ -105,7 +106,7 @@ app.listen(PORT, '0.0.0.0', () => {
 
 // А бота подключаем отдельно
 client.login(process.env.TOKEN);
-
+console.log('📡 Отправлен запрос на вход в Discord...');
 client.once('clientReady', () => {
     console.log(`✅ Бот запущен как ${client.user.tag}`);
     console.log(`📊 Серверов: ${client.guilds.cache.size}`);
