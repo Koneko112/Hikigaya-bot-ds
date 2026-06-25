@@ -113,7 +113,7 @@ client.login(process.env.TOKEN);
 client.once('clientReady', () => {
     console.log(`✅ Бот запущен как ${client.user.tag}`);
     console.log(`📊 Серверов: ${client.guilds.cache.size}`);
-});
+    
     // YouTube отслеживание (каждые 5 минут)
     setInterval(() => {
         checkYouTubeRSS(client);
@@ -123,6 +123,7 @@ client.once('clientReady', () => {
     setInterval(() => {
         checkTelegram(client);
     }, 60000);
+}); // ← ЭТА СКОБКА ЗАКРЫВАЕТ client.once
 
 
 // Функция для получения локального IP
