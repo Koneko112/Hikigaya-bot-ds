@@ -1,14 +1,16 @@
-const { queue } = require('./play');
+const player = require('../utils/player');
 
 module.exports = {
     name: 'skip',
     description: '⏭ Пропустить трек',
     async execute(message) {
-        const serverQueue = queue.get(message.guildId);
-        if (!serverQueue || !serverQueue.songs.length) {
+        const queue = player.nodes.get(message.guild);
+        
+        if (!queue || !queue.node.isPlaying()) {
             return message.reply('❌ Ничего не играет');
         }
-        serverQueue.player.stop();
+        
+        queue.node.skip();
         return message.reply('⏭ **Трек пропущен**');
     }
 };
