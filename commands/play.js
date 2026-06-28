@@ -1,6 +1,5 @@
 const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus } = require('@discordjs/voice');
-const ytdl = require('@distube/ytdl-core');
-const ytSearch = require('yt-search');
+const play = require('play-dl');
 
 const queue = new Map();
 
@@ -20,26 +19,23 @@ module.exports = {
         const query = args.join(' ');
 
         try {
-            let songInfo;
-            let url;
-
-            if (ytdl.validateURL(query)) {
-                url = query;
-                songInfo = await ytdl.getInfo(url);
+            // Поиск видео
+            let video;
+            if (play.yt_validate(query) === 'video') {
+                video = await play.video_info(query);
             } else {
-                const result = await ytSearch(query);
-                if (!result.videos.length) {
+                const results = await play.search(query, { limit: 1 });
+                if (!results.length) {
                     return message.reply('❌ Ничего не найдено');
                 }
-                const video = result.videos[0];
-                url = video.url;
-                songInfo = await ytdl.getInfo(url);
+                video = await play.video_info(results[0].url);
             }
 
             const song = {
-                title: songInfo.videoDetails.title,
-                url: url,
-                duration: songInfo.videoDetails.lengthSeconds,
+                title: video.video_details.title,
+                url: video.video_details.url,
+                duration: video.video_details.durationInSec,
+                thumbnail: video.video_details.thumbnails[0]?.url,
                 requestedBy: message.author.tag
             };
 
@@ -61,7 +57,7 @@ module.exports = {
                 serverQueue.connection = connection;
                 serverQueue.player = player;
 
-                play(message.guildId);
+                playSong(message.guildId);
 
                 return message.reply(`🎵 **Играет:** ${song.title}`);
             } else {
@@ -70,13 +66,13 @@ module.exports = {
             }
 
         } catch (error) {
-            console.error(error);
-            return message.reply('❌ Ошибка при воспроизведении');
+            console.error('Ошибка:', error);
+            return message.reply('❌ Ошибка при воспроизведении. Попробуй другую песню.');
         }
     }
 };
 
-async function play(guildId) {
+async function playSong(guildId) {
     const serverQueue = queue.get(guildId);
     if (!serverQueue || !serverQueue.songs.length) {
         queue.delete(guildId);
@@ -84,18 +80,33 @@ async function play(guildId) {
     }
 
     const song = serverQueue.songs[0];
-    const stream = ytdl(song.url, { filter: 'audioonly' });
-    const resource = createAudioResource(stream);
-    serverQueue.player.play(resource);
+    
+    try {
+        const stream = await play.stream(song.url, {
+            quality: 0,
+            discordPlayerCompatibility: true
+        });
 
-    serverQueue.player.on(AudioPlayerStatus.Idle, () => {
-        serverQueue.songs.shift();
-        play(guildId);
-    });
+        const resource = createAudioResource(stream.stream, {
+            inputType: stream.type
+        });
 
-    serverQueue.player.on('error', (error) => {
-        console.error('Ошибка плеера:', error);
+        serverQueue.player.play(resource);
+
+        serverQueue.player.on(AudioPlayerStatus.Idle, () => {
+            serverQueue.songs.shift();
+            playSong(guildId);
+        });
+
+        serverQueue.player.on('error', (error) => {
+            console.error('Ошибка плеера:', error);
+            serverQueue.songs.shift();
+            playSong(guildId);
+        });
+
+    } catch (error) {
+        console.error('Ошибка воспроизведения:', error);
         serverQueue.songs.shift();
-        play(guildId);
-    });
+        playSong(guildId);
+    }
 }
