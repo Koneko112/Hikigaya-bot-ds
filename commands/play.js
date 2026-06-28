@@ -1,11 +1,8 @@
-const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus } = require('@discordjs/voice');
-const play = require('play-dl');
-
-const queue = new Map();
+const player = require('../utils/player');
 
 module.exports = {
     name: 'play',
-    description: '🎵 Включить музыку (SoundCloud)',
+    description: '🎵 Включить музыку',
     async execute(message, args) {
         const voiceChannel = message.member.voice.channel;
         if (!voiceChannel) {
@@ -13,73 +10,35 @@ module.exports = {
         }
 
         if (!args.length) {
-            return message.reply('❌ Укажи название песни или ссылку: `!play Shadowraze`');
+            return message.reply('❌ Укажи название песни или ссылку: `!play Imagine Dragons`');
         }
 
         const query = args.join(' ');
 
         try {
-            let song;
-            let url;
+            const queue = player.nodes.create(message.guild);
 
-            // === ПРОВЕРЯЕМ, ЭТО ССЫЛКА НА SOUNDCLOUD? ===
-            const validation = play.validate(query);
-            if (validation === 'sc_track' || validation === 'sc_playlist') {
-                const track = await play.sc_track_info(query);
-                song = {
-                    title: track.name,
-                    url: track.url,
-                    duration: track.durationInSec,
-                    requestedBy: message.author.tag,
-                    source: 'SoundCloud'
-                };
-            } else {
-                // === ПОИСК НА SOUNDCLOUD ===
-                const results = await play.search(query, {
-                    limit: 1,
-                    source: {
-                        soundcloud: 'track'
-                    }
-                });
-
-                if (!results.length) {
-                    return message.reply('❌ Ничего не найдено на SoundCloud. Попробуй другое название.');
-                }
-
-                const track = results[0];
-                song = {
-                    title: track.name,
-                    url: track.url,
-                    duration: track.durationInSec,
-                    requestedBy: message.author.tag,
-                    source: 'SoundCloud'
-                };
+            if (!queue.connection) {
+                await queue.connect(voiceChannel);
             }
 
-            let serverQueue = queue.get(message.guildId);
+            const result = await player.search(query, {
+                requestedBy: message.author,
+                searchEngine: 'youtube'
+            });
 
-            if (!serverQueue) {
-                serverQueue = { songs: [], player: null, connection: null };
-                queue.set(message.guildId, serverQueue);
-                serverQueue.songs.push(song);
+            if (!result.tracks.length) {
+                return message.reply('❌ Ничего не найдено');
+            }
 
-                const connection = joinVoiceChannel({
-                    channelId: voiceChannel.id,
-                    guildId: message.guildId,
-                    adapterCreator: message.guild.voiceAdapterCreator,
-                });
+            const track = result.tracks[0];
+            queue.addTrack(track);
 
-                const player = createAudioPlayer();
-                connection.subscribe(player);
-                serverQueue.connection = connection;
-                serverQueue.player = player;
-
-                playSong(message.guildId);
-
-                return message.reply(`🎵 **Играет (SoundCloud):** ${song.title}`);
+            if (!queue.node.isPlaying()) {
+                await queue.node.play();
+                return message.reply(`🎵 **Играет:** ${track.title}`);
             } else {
-                serverQueue.songs.push(song);
-                return message.reply(`📋 **Добавлено в очередь (SoundCloud):** ${song.title} (позиция ${serverQueue.songs.length})`);
+                return message.reply(`📋 **Добавлено в очередь:** ${track.title} (позиция ${queue.tracks.data.length})`);
             }
 
         } catch (error) {
@@ -88,41 +47,3 @@ module.exports = {
         }
     }
 };
-
-async function playSong(guildId) {
-    const serverQueue = queue.get(guildId);
-    if (!serverQueue || !serverQueue.songs.length) {
-        queue.delete(guildId);
-        return;
-    }
-
-    const song = serverQueue.songs[0];
-    
-    try {
-        const stream = await play.stream(song.url, {
-            discordPlayerCompatibility: true
-        });
-
-        const resource = createAudioResource(stream.stream, {
-            inputType: stream.type
-        });
-
-        serverQueue.player.play(resource);
-
-        serverQueue.player.on(AudioPlayerStatus.Idle, () => {
-            serverQueue.songs.shift();
-            playSong(guildId);
-        });
-
-        serverQueue.player.on('error', (error) => {
-            console.error('Ошибка плеера:', error);
-            serverQueue.songs.shift();
-            playSong(guildId);
-        });
-
-    } catch (error) {
-        console.error('Ошибка воспроизведения:', error);
-        serverQueue.songs.shift();
-        playSong(guildId);
-    }
-}
