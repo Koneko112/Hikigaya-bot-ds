@@ -23,7 +23,8 @@ module.exports = {
             let url;
 
             // === ПРОВЕРЯЕМ, ЭТО ССЫЛКА НА SOUNDCLOUD? ===
-            if (play.sc_validate(query) === 'track') {
+            const validation = play.validate(query);
+            if (validation === 'sc_track' || validation === 'sc_playlist') {
                 const track = await play.sc_track_info(query);
                 song = {
                     title: track.name,
