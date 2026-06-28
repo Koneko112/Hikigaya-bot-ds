@@ -7,23 +7,17 @@ const queue = new Map();
 module.exports = {
     name: 'play',
     description: '🎵 Включить музыку',
-    options: [
-        {
-            name: 'song',
-            description: 'Название или ссылка',
-            type: 3,
-            required: true
-        }
-    ],
-
-    async execute(interaction) {
-        const voiceChannel = interaction.member.voice.channel;
+    async execute(message, args) {
+        const voiceChannel = message.member.voice.channel;
         if (!voiceChannel) {
-            return interaction.reply({ content: '❌ Зайди в голосовой канал!', ephemeral: true });
+            return message.reply('❌ Зайди в голосовой канал!');
         }
 
-        const query = interaction.options.getString('song');
-        await interaction.deferReply();
+        if (!args.length) {
+            return message.reply('❌ Укажи название песни или ссылку: `!play Imagine Dragons`');
+        }
+
+        const query = args.join(' ');
 
         try {
             let songInfo;
@@ -35,7 +29,7 @@ module.exports = {
             } else {
                 const result = await ytSearch(query);
                 if (!result.videos.length) {
-                    return interaction.editReply('❌ Ничего не найдено');
+                    return message.reply('❌ Ничего не найдено');
                 }
                 const video = result.videos[0];
                 url = video.url;
@@ -46,20 +40,20 @@ module.exports = {
                 title: songInfo.videoDetails.title,
                 url: url,
                 duration: songInfo.videoDetails.lengthSeconds,
-                requestedBy: interaction.user.tag
+                requestedBy: message.author.tag
             };
 
-            let serverQueue = queue.get(interaction.guildId);
+            let serverQueue = queue.get(message.guildId);
 
             if (!serverQueue) {
                 serverQueue = { songs: [], player: null, connection: null };
-                queue.set(interaction.guildId, serverQueue);
+                queue.set(message.guildId, serverQueue);
                 serverQueue.songs.push(song);
 
                 const connection = joinVoiceChannel({
                     channelId: voiceChannel.id,
-                    guildId: interaction.guildId,
-                    adapterCreator: interaction.guild.voiceAdapterCreator,
+                    guildId: message.guildId,
+                    adapterCreator: message.guild.voiceAdapterCreator,
                 });
 
                 const player = createAudioPlayer();
@@ -67,17 +61,17 @@ module.exports = {
                 serverQueue.connection = connection;
                 serverQueue.player = player;
 
-                play(interaction.guildId);
+                play(message.guildId);
 
-                return interaction.editReply(`🎵 **Играет:** ${song.title}`);
+                return message.reply(`🎵 **Играет:** ${song.title}`);
             } else {
                 serverQueue.songs.push(song);
-                return interaction.editReply(`📋 **Добавлено в очередь:** ${song.title} (позиция ${serverQueue.songs.length})`);
+                return message.reply(`📋 **Добавлено в очередь:** ${song.title} (позиция ${serverQueue.songs.length})`);
             }
 
         } catch (error) {
             console.error(error);
-            return interaction.editReply('❌ Ошибка при воспроизведении');
+            return message.reply('❌ Ошибка при воспроизведении');
         }
     }
 };
