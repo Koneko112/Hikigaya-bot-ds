@@ -1,6 +1,10 @@
 const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus } = require('@discordjs/voice');
 const play = require('play-dl');
 
+// === ВСТАВЬ СВОЙ COOKIE СЮДА ===
+// Как получить: YouTube → F12 → Application → Cookies → __Secure-3PSID
+const YT_COOKIE = '__Secure-3PSID=g.a000_AjlniNGLNYgQ29mGdTUbsGEDCDXa8r99dOOkYTYcjcnpBestucv7Mits8cRRgd37VSAfAACgYKAX4SARQSFQHGX2MiEGeGh5MgwX-j2KbnRbUuGhoVAUF8yKoDSh9t30v1VTTQSac9zshc0076;';
+
 const queue = new Map();
 
 module.exports = {
@@ -19,7 +23,13 @@ module.exports = {
         const query = args.join(' ');
 
         try {
-            // Поиск видео
+            // Устанавливаем cookie для YouTube
+            play.setToken({
+                youtube: {
+                    cookie: YT_COOKIE
+                }
+            });
+
             let video;
             if (play.yt_validate(query) === 'video') {
                 video = await play.video_info(query);
