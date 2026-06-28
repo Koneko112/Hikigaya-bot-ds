@@ -7,7 +7,10 @@ const passport = require('passport');
 const DiscordStrategy = require('passport-discord').Strategy;
 const path = require('path');
 const fs = require('fs');
+const player = require('./utils/player');
 
+// Делаем плеер доступным глобально
+global.player = player;
 // ====== ИНИЦИАЛИЗАЦИЯ БОТА ======
 const client = new Client({
     intents: [
