@@ -1,17 +1,16 @@
-const { queue } = require('./play');
+const player = require('../utils/player');
 
 module.exports = {
     name: 'stop',
     description: '⏹ Остановить музыку',
     async execute(message) {
-        const serverQueue = queue.get(message.guildId);
-        if (!serverQueue) {
+        const queue = player.nodes.get(message.guild);
+        
+        if (!queue || !queue.node.isPlaying()) {
             return message.reply('❌ Ничего не играет');
         }
-        serverQueue.songs = [];
-        serverQueue.player.stop();
-        serverQueue.connection.destroy();
-        queue.delete(message.guildId);
+        
+        queue.delete();
         return message.reply('⏹ **Музыка остановлена**');
     }
 };
