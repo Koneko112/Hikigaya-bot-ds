@@ -1,14 +1,11 @@
 const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus } = require('@discordjs/voice');
 const play = require('play-dl');
 
-// === ВСТАВЬ СВОИ COOKIE СЮДА ===
-const YT_COOKIE = '__Secure-3PSID=g.a000_AjlniNGLNYgQ29mGdTUbsGEDCDXa8r99dOOkYTYcjcnpBestucv7Mits8cRRgd37VSAfAACgYKAX4SARQSFQHGX2MiEGeGh5MgwX-j2KbnRbUuGhoVAUF8yKoDSh9t30v1VTTQSac9zshc0076; __Secure-3PAPISID=I_FCLNnMccs64krT/AO2maUnNcCniNQoyi;';
-
 const queue = new Map();
 
 module.exports = {
     name: 'play',
-    description: '🎵 Включить музыку',
+    description: '🎵 Включить музыку (SoundCloud/YouTube)',
     async execute(message, args) {
         const voiceChannel = message.member.voice.channel;
         if (!voiceChannel) {
@@ -22,30 +19,65 @@ module.exports = {
         const query = args.join(' ');
 
         try {
-            play.setToken({
-                youtube: {
-                    cookie: YT_COOKIE
-                }
-            });
+            let song;
+            let url;
 
-            let video;
+            // === ПРОВЕРЯЕМ ССЫЛКУ ===
             if (play.yt_validate(query) === 'video') {
-                video = await play.video_info(query);
+                // YouTube
+                const video = await play.video_info(query);
+                song = {
+                    title: video.video_details.title,
+                    url: video.video_details.url,
+                    duration: video.video_details.durationInSec,
+                    requestedBy: message.author.tag,
+                    source: 'YouTube'
+                };
+            } else if (play.sc_validate(query) === 'track') {
+                // SoundCloud
+                const track = await play.sc_track_info(query);
+                song = {
+                    title: track.name,
+                    url: track.url,
+                    duration: track.durationInSec,
+                    requestedBy: message.author.tag,
+                    source: 'SoundCloud'
+                };
             } else {
-                const results = await play.search(query, { limit: 1 });
-                if (!results.length) {
-                    return message.reply('❌ Ничего не найдено');
-                }
-                video = await play.video_info(results[0].url);
-            }
+                // === ПОИСК ===
+                // Сначала ищем на SoundCloud
+                let scResults = await play.search(query, {
+                    limit: 1,
+                    source: {
+                        soundcloud: 'track'
+                    }
+                });
 
-            const song = {
-                title: video.video_details.title,
-                url: video.video_details.url,
-                duration: video.video_details.durationInSec,
-                thumbnail: video.video_details.thumbnails[0]?.url,
-                requestedBy: message.author.tag
-            };
+                if (scResults.length) {
+                    const track = scResults[0];
+                    song = {
+                        title: track.name,
+                        url: track.url,
+                        duration: track.durationInSec,
+                        requestedBy: message.author.tag,
+                        source: 'SoundCloud'
+                    };
+                } else {
+                    // Если нет — ищем на YouTube
+                    const ytResults = await play.search(query, { limit: 1 });
+                    if (!ytResults.length) {
+                        return message.reply('❌ Ничего не найдено');
+                    }
+                    const video = await play.video_info(ytResults[0].url);
+                    song = {
+                        title: video.video_details.title,
+                        url: video.video_details.url,
+                        duration: video.video_details.durationInSec,
+                        requestedBy: message.author.tag,
+                        source: 'YouTube'
+                    };
+                }
+            }
 
             let serverQueue = queue.get(message.guildId);
 
@@ -67,10 +99,10 @@ module.exports = {
 
                 playSong(message.guildId);
 
-                return message.reply(`🎵 **Играет:** ${song.title}`);
+                return message.reply(`🎵 **Играет (${song.source}):** ${song.title}`);
             } else {
                 serverQueue.songs.push(song);
-                return message.reply(`📋 **Добавлено в очередь:** ${song.title} (позиция ${serverQueue.songs.length})`);
+                return message.reply(`📋 **Добавлено в очередь (${song.source}):** ${song.title} (позиция ${serverQueue.songs.length})`);
             }
 
         } catch (error) {
@@ -90,10 +122,17 @@ async function playSong(guildId) {
     const song = serverQueue.songs[0];
     
     try {
-        const stream = await play.stream(song.url, {
-            quality: 0,
-            discordPlayerCompatibility: true
-        });
+        let stream;
+        if (song.source === 'SoundCloud') {
+            stream = await play.stream(song.url, {
+                discordPlayerCompatibility: true
+            });
+        } else {
+            stream = await play.stream(song.url, {
+                quality: 0,
+                discordPlayerCompatibility: true
+            });
+        }
 
         const resource = createAudioResource(stream.stream, {
             inputType: stream.type
