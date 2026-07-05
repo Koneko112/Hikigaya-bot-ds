@@ -34,7 +34,7 @@ module.exports = {
 \`!ping\` - Проверка работы
 \`!help\` - Это сообщение
 
-🎨 **Админ-панель:** http://localhost:3000/dashboard
+🎨 **Админ-панель:** https://hikigaya-bot-ds.onrender.com/
         `;
         message.reply(helpText);
     }
