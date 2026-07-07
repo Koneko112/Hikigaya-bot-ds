@@ -1,0 +1,86 @@
+const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus } = require('@discordjs/voice');
+const fs = require('fs');
+const path = require('path');
+
+const queue = new Map();
+
+module.exports = {
+    name: 'play-uploaded',
+    description: '🎵 Включить загруженный трек',
+    async execute(message, args) {
+        const voiceChannel = message.member.voice.channel;
+        if (!voiceChannel) {
+            return message.reply('❌ Зайди в голосовой канал!');
+        }
+
+        const userTracksFile = path.join(__dirname, '..', 'data', 'user-tracks.json');
+        let data = {};
+        if (fs.existsSync(userTracksFile)) {
+            data = JSON.parse(fs.readFileSync(userTracksFile, 'utf8'));
+        }
+        const tracks = data[message.author.id] || [];
+
+        if (!tracks.length) {
+            return message.reply('❌ У тебя нет загруженных треков. Загрузи их на сайте: /upload-music');
+        }
+
+        let targetTrack;
+        if (args.length) {
+            const query = args.join(' ').toLowerCase();
+            targetTrack = tracks.find(t => t.originalName.toLowerCase().includes(query));
+            if (!targetTrack) {
+                return message.reply(`❌ Трек "${query}" не найден. Твои треки: ${tracks.map(t => t.originalName).join(', ')}`);
+            }
+        } else {
+            targetTrack = tracks[tracks.length - 1];
+        }
+
+        const song = {
+            title: targetTrack.originalName,
+            path: targetTrack.path,
+            requestedBy: message.author.tag
+        };
+
+        let serverQueue = queue.get(message.guildId);
+
+        if (!serverQueue) {
+            serverQueue = { songs: [], player: null, connection: null };
+            queue.set(message.guildId, serverQueue);
+            serverQueue.songs.push(song);
+
+            const connection = joinVoiceChannel({
+                channelId: voiceChannel.id,
+                guildId: message.guildId,
+                adapterCreator: message.guild.voiceAdapterCreator,
+            });
+
+            const player = createAudioPlayer();
+            connection.subscribe(player);
+            serverQueue.connection = connection;
+            serverQueue.player = player;
+
+            playSong(message.guildId);
+            return message.reply(`🎵 **Играет:** ${song.title}`);
+        } else {
+            serverQueue.songs.push(song);
+            return message.reply(`📋 **Добавлено в очередь:** ${song.title}`);
+        }
+    }
+};
+
+async function playSong(guildId) {
+    const serverQueue = queue.get(guildId);
+    if (!serverQueue || !serverQueue.songs.length) {
+        queue.delete(guildId);
+        return;
+    }
+
+    const song = serverQueue.songs[0];
+    const resource = createAudioResource(song.path);
+    serverQueue.player.play(resource);
+
+    serverQueue.player.on(AudioPlayerStatus.Idle, () => {
+        serverQueue.songs.shift();
+        playSong(guildId);
+    });
+}
