@@ -459,7 +459,7 @@ router.get('/api/guild-roles', isAuthenticated, async (req, res) => {
     }
 });
 
-// ============= API =============
+// ============= API ЭНДПОИНТЫ =============
 router.post('/api/admin/economy/add', isAdmin, (req, res) => {
     const { userId, amount } = req.body;
     if (!userId || !amount) return res.status(400).json({ error: 'Укажите userId и amount' });
@@ -891,5 +891,4 @@ router.post('/api/referrals/confirm', isAuthenticated, (req, res) => {
 });
 
 router.post('/api/warnings/clear', isAdmin, (req, res) => {
-    const { userId, guildId } = req.body;
-    if (!
+    const { userId, guildId } = req.body
