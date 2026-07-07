@@ -38,7 +38,6 @@ function isAuthenticated(req, res, next) {
     if (req.isAuthenticated()) return next();
     res.redirect('/');
 }
-module.exports = router;
 
 function isAdmin(req, res, next) {
     if (!req.isAuthenticated()) return res.redirect('/');
@@ -892,6 +891,21 @@ router.post('/api/referrals/confirm', isAuthenticated, (req, res) => {
 });
 
 router.post('/api/warnings/clear', isAdmin, (req, res) => {
-    const { userId, guildId } = req.body
+    const { userId, guildId } = req.body;
+    if (!userId) return res.status(400).json({ error: 'Укажите userId' });
     
+    const warningsFile = path.join(__dirname, '..', 'data', 'warnings.json');
+    let warnings = { guilds: {} };
+    if (fs.existsSync(warningsFile)) {
+        warnings = JSON.parse(fs.readFileSync(warningsFile, 'utf8'));
+    }
+    
+    if (warnings.guilds && warnings.guilds[guildId] && warnings.guilds[guildId].users) {
+        delete warnings.guilds[guildId].users[userId];
+        fs.writeFileSync(warningsFile, JSON.stringify(warnings, null, 2));
+    }
+    
+    res.json({ success: true, message: 'Варны очищены' });
+});
+
 module.exports = router;
