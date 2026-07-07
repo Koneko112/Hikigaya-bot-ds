@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Моя музыка</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">🤖 BotPanel</a>
+            <div class="nav-menu">
+                <a href="/dashboard">📊 Панель</a>
+                <a href="/profile">👤 Профиль</a>
+                <a href="/shop">🛒 Магазин</a>
+                <a href="/youtube">📺 YouTube</a>
+                <a href="/upload-music">🎵 Моя музыка</a>
+                <a href="/logout" style="color: #ff6b6b;">🚪 Выйти</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>🎵 Моя музыка</h1>
+        <p style="color: #8888aa;">Загружай свои треки и слушай их в Discord!</p>
+
+        <div style="background: #131325; border-radius: 16px; border: 1px solid #2a2a50; padding: 30px; margin-top: 20px;">
+            <form id="uploadForm" enctype="multipart/form-data">
+                <div style="border: 2px dashed #2a2a50; border-radius: 16px; padding: 40px; text-align: center;">
+                    <p style="font-size: 3rem;">📁</p>
+                    <p style="color: #8888aa;">Перетащите файл или нажмите для выбора</p>
+                    <p style="color: #555; font-size: 0.85rem;">Поддерживаются: MP3, FLAC, WAV, OGG, M4A (до 50 MB)</p>
+                    <input type="file" id="audioFile" accept=".mp3,.flac,.wav,.ogg,.m4a" style="display: none;">
+                    <button type="button" onclick="document.getElementById('audioFile').click()" class="btn-primary" style="margin-top: 12px;">Выбрать файл</button>
+                </div>
+                <div id="fileInfo" style="margin-top: 16px; display: none;">
+                    <p>📄 <span id="fileName"></span></p>
+                    <p>📦 <span id="fileSize"></span></p>
+                    <button type="submit" class="btn-primary">🎵 Загрузить</button>
+                </div>
+                <div id="uploadProgress" style="display: none; margin-top: 16px;">
+                    <div style="width: 100%; background: #0b0b14; border-radius: 8px; height: 20px;">
+                        <div id="progressBar" style="width: 0%; background: #7c5cfc; border-radius: 8px; height: 20px; transition: 0.3s;"></div>
+                    </div>
+                    <p id="progressText" style="color: #8888aa; margin-top: 4px;">0%</p>
+                </div>
+            </form>
+            <div id="result" style="margin-top: 16px;"></div>
+        </div>
+
+        <h2 style="margin-top: 32px;">🎶 Мои треки</h2>
+        <div id="myTracks" style="margin-top: 12px;">
+            <p style="color: #8888aa;">Загрузка...</p>
+        </div>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('audioFile');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+
+        fileInput.addEventListener('change', function() {
+            if (this.files.length) {
+                const file = this.files[0];
+                fileName.textContent = file.name;
+                fileSize.textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+                fileInfo.style.display = 'block';
+            }
+        });
+
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('audio', file);
+
+            const progress = document.getElementById('uploadProgress');
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            progress.style.display = 'block';
+
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '/api/upload-music');
+            xhr.upload.onprogress = (event) => {
+                const percent = Math.round((event.loaded / event.total) * 100);
+                progressBar.style.width = percent + '%';
+                progressText.textContent = percent + '%';
+            };
+            xhr.onload = () => {
+                const response = JSON.parse(xhr.responseText);
+                document.getElementById('result').innerHTML = response.success
+                    ? `<div style="color: #00b894; padding: 12px; background: rgba(0,184,148,0.1); border-radius: 8px;">✅ ${response.message}</div>`
+                    : `<div style="color: #ff6b6b; padding: 12px; background: rgba(255,107,107,0.1); border-radius: 8px;">❌ ${response.error}</div>`;
+                loadMyTracks();
+                fileInfo.style.display = 'none';
+                fileInput.value = '';
+                progress.style.display = 'none';
+            };
+            xhr.send(formData);
+        });
+
+        async function loadMyTracks() {
+            try {
+                const res = await fetch('/api/my-tracks');
+                const data = await res.json();
+                const container = document.getElementById('myTracks');
+                if (data.tracks.length === 0) {
+                    container.innerHTML = '<p style="color: #8888aa;">У вас пока нет загруженных треков</p>';
+                    return;
+                }
+                container.innerHTML = data.tracks.map(t => `
+                    <div style="background: #131325; padding: 16px; border-radius: 8px; margin-bottom: 8px; border: 1px solid #2a2a50; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <span style="font-weight: 500;">🎵 ${t.originalName}</span>
+                            <span style="color: #8888aa; font-size: 0.85rem; margin-left: 12px;">${(t.size / 1024 / 1024).toFixed(2)} MB</span>
+                        </div>
+                        <span style="color: #555; font-size: 0.75rem;">${new Date(t.uploadedAt).toLocaleDateString('ru-RU')}</span>
+                    </div>
+                `).join('');
+            } catch (error) {
+                document.getElementById('myTracks').innerHTML = '<p style="color: #ff6b6b;">Ошибка загрузки списка</p>';
+            }
+        }
+        loadMyTracks();
+    </script>
+</body>
+</html>
