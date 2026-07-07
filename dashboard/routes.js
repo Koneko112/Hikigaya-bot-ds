@@ -989,4 +989,41 @@ router.get('/api/users/search', isAuthenticated, async (req, res) => {
         res.json({ users: [] });
     }
 });
+// ============= СТРАНИЦА МОДЕРАЦИИ (для модераторов) =============
+router.get('/moderation', async (req, res) => {
+    if (!req.isAuthenticated()) {
+        return res.redirect('/');
+    }
+    
+    // Проверяем, есть ли право на мут или бан
+    if (!hasPermission(req.user.id, 'mute') && !hasPermission(req.user.id, 'ban')) {
+        return res.redirect('/');
+    }
+    
+    try {
+        const guildId = '1208677626961727528';
+        const guild = global.discordClient.guilds.cache.get(guildId);
+        if (!guild) {
+            return res.status(404).send('Сервер не найден');
+        }
+        
+        await guild.members.fetch();
+        const members = guild.members.cache.map(m => ({
+            id: m.id,
+            username: m.user.username,
+            avatar: m.user.displayAvatarURL(),
+            joinedAt: m.joinedAt
+        }));
+        
+        res.render('moderation', { 
+            user: req.user, 
+            members: members,
+            canMute: hasPermission(req.user.id, 'mute'),
+            canBan: hasPermission(req.user.id, 'ban')
+        });
+    } catch (error) {
+        console.error('Ошибка загрузки участников:', error);
+        res.status(500).send('Ошибка загрузки участников');
+    }
+});
 module.exports = router;
