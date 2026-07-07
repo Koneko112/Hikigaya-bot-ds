@@ -185,6 +185,18 @@
         .modal-actions .btn-save:hover {
             background: #9b7cff;
         }
+        .modal-actions .btn-remove {
+            flex: 1;
+            background: #e74c3c;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .modal-actions .btn-remove:hover {
+            background: #c0392b;
+        }
         .modal-actions .btn-cancel {
             flex: 1;
             background: #2a2a4a;
@@ -296,7 +308,7 @@
     <!-- МОДАЛЬНОЕ ОКНО -->
     <div id="roleModal">
         <div class="modal-content">
-            <h3>🎭 Сменить роль</h3>
+            <h3>🎭 Управление ролью</h3>
             <p>Пользователь: <strong id="modalUserName"></strong></p>
             <input type="hidden" id="modalUserId">
             
@@ -306,8 +318,9 @@
             </select>
             
             <div class="modal-actions">
-                <button class="btn-save" onclick="saveRole()">💾 Сохранить</button>
-                <button class="btn-cancel" onclick="closeModal()">❌ Отмена</button>
+                <button class="btn-save" onclick="addRole()">➕ Выдать</button>
+                <button class="btn-remove" onclick="removeRole()">➖ Убрать</button>
+                <button class="btn-cancel" onclick="closeModal()">❌ Закрыть</button>
             </div>
             <div id="modalResult"></div>
         </div>
@@ -386,12 +399,55 @@
             document.getElementById('roleModal').style.display = 'none';
         }
 
-        async function saveRole() {
+        async function addRole() {
             const userId = document.getElementById('modalUserId').value;
             const roleId = document.getElementById('modalRoleSelect').value;
             const result = document.getElementById('modalResult');
             
-            result.textContent = '⏳ Сохранение...';
+            if (roleId === 'none') {
+                result.textContent = '❌ Выберите роль';
+                result.style.color = '#ff6b6b';
+                return;
+            }
+            
+            result.textContent = '⏳ Выдача...';
+            result.style.color = '#8888aa';
+            
+            try {
+                const res = await fetch('/api/admin/set-role', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId, roleId })
+                });
+                const data = await res.json();
+                
+                result.textContent = data.success ? '✅ ' + data.message : '❌ ' + data.error;
+                result.style.color = data.success ? '#00b894' : '#ff6b6b';
+                
+                if (data.success) {
+                    setTimeout(() => {
+                        closeModal();
+                        location.reload();
+                    }, 1500);
+                }
+            } catch (e) {
+                result.textContent = '❌ Ошибка соединения';
+                result.style.color = '#ff6b6b';
+            }
+        }
+
+        async function removeRole() {
+            const userId = document.getElementById('modalUserId').value;
+            const roleId = document.getElementById('modalRoleSelect').value;
+            const result = document.getElementById('modalResult');
+            
+            if (roleId === 'none') {
+                result.textContent = '❌ Выберите роль';
+                result.style.color = '#ff6b6b';
+                return;
+            }
+            
+            result.textContent = '⏳ Убираем...';
             result.style.color = '#8888aa';
             
             try {
