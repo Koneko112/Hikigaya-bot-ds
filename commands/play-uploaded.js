@@ -1,5 +1,9 @@
-const player = require('../utils/player');
-const { QueryType } = require('discord-player');
+const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus } = require('@discordjs/voice');
+const fs = require('fs');
+const path = require('path');
+const { createReadStream } = require('fs');
+
+const queue = new Map();
 
 module.exports = {
     name: 'play-uploaded',
@@ -10,10 +14,10 @@ module.exports = {
             return message.reply('❌ Зайди в голосовой канал!');
         }
 
-        const userTracksFile = require('path').join(__dirname, '..', 'data', 'user-tracks.json');
+        const userTracksFile = path.join(__dirname, '..', 'data', 'user-tracks.json');
         let data = {};
-        if (require('fs').existsSync(userTracksFile)) {
-            data = JSON.parse(require('fs').readFileSync(userTracksFile, 'utf8'));
+        if (fs.existsSync(userTracksFile)) {
+            data = JSON.parse(fs.readFileSync(userTracksFile, 'utf8'));
         }
         const tracks = data[message.author.id] || [];
 
@@ -32,43 +36,88 @@ module.exports = {
             targetTrack = tracks[tracks.length - 1];
         }
 
-        if (!require('fs').existsSync(targetTrack.path)) {
+        if (!fs.existsSync(targetTrack.path)) {
             return message.reply(`❌ Файл "${targetTrack.originalName}" не найден на сервере. Загрузи его заново.`);
         }
 
-        try {
-            const queue = await player.nodes.create(message.guild, {
-                metadata: {
-                    channel: message.channel
-                }
+        const song = {
+            title: targetTrack.originalName,
+            path: targetTrack.path,
+            requestedBy: message.author.tag
+        };
+
+        console.log('📂 Путь к файлу:', song.path);
+        console.log('📂 Файл существует?', fs.existsSync(song.path));
+
+        let serverQueue = queue.get(message.guildId);
+
+        if (!serverQueue) {
+            serverQueue = { songs: [], player: null, connection: null };
+            queue.set(message.guildId, serverQueue);
+            serverQueue.songs.push(song);
+
+            const connection = joinVoiceChannel({
+                channelId: voiceChannel.id,
+                guildId: message.guildId,
+                adapterCreator: message.guild.voiceAdapterCreator,
             });
 
-            if (!queue.connection) {
-                await queue.connect(voiceChannel);
-            }
+            const player = createAudioPlayer();
+            connection.subscribe(player);
+            serverQueue.connection = connection;
+            serverQueue.player = player;
 
-            // Добавляем локальный файл
-            const result = await player.search(targetTrack.path, {
-                requestedBy: message.author
-            });
-
-            if (!result.tracks.length) {
-                return message.reply('❌ Не удалось воспроизвести файл');
-            }
-
-            const track = result.tracks[0];
-            queue.addTrack(track);
-
-            if (!queue.node.isPlaying()) {
-                await queue.node.play();
-                return message.reply(`🎵 **Играет:** ${targetTrack.originalName}`);
-            } else {
-                return message.reply(`📋 **Добавлено в очередь:** ${targetTrack.originalName} (позиция ${queue.tracks.data.length})`);
-            }
-
-        } catch (error) {
-            console.error('❌ Ошибка воспроизведения:', error);
-            return message.reply('❌ Ошибка при воспроизведении: ' + error.message);
+            playSong(message.guildId);
+            return message.reply(`🎵 **Играет:** ${song.title}`);
+        } else {
+            serverQueue.songs.push(song);
+            return message.reply(`📋 **Добавлено в очередь:** ${song.title}`);
         }
     }
 };
+
+async function playSong(guildId) {
+    const serverQueue = queue.get(guildId);
+    if (!serverQueue || !serverQueue.songs.length) {
+        queue.delete(guildId);
+        return;
+    }
+
+    const song = serverQueue.songs[0];
+
+    try {
+        console.log(`🎵 Воспроизвожу: ${song.path}`);
+
+        const stats = fs.statSync(song.path);
+        if (stats.size === 0) {
+            console.error('❌ Файл пустой');
+            serverQueue.songs.shift();
+            playSong(guildId);
+            return;
+        }
+
+        const stream = createReadStream(song.path);
+        const resource = createAudioResource(stream, {
+            inlineVolume: true
+        });
+
+        serverQueue.player.play(resource);
+
+        serverQueue.player.on(AudioPlayerStatus.Idle, () => {
+            console.log('⏭ Трек закончился, переключаем...');
+            serverQueue.songs.shift();
+            playSong(guildId);
+        });
+
+        serverQueue.player.on('error', (error) => {
+            console.error('❌ Ошибка плеера:', error);
+            serverQueue.songs.shift();
+            playSong(guildId);
+        });
+
+    } catch (error) {
+        console.error('❌ Ошибка воспроизведения:', error);
+        serverQueue.songs.shift();
+        playSong(guildId);
+    }
+}
