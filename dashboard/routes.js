@@ -893,3 +893,5 @@ router.post('/api/referrals/confirm', isAuthenticated, (req, res) => {
 
 router.post('/api/warnings/clear', isAdmin, (req, res) => {
     const { userId, guildId } = req.body
+    
+module.exports = router;
