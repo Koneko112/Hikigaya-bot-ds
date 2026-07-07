@@ -10,6 +10,9 @@ const fs = require('fs');
 const ffmpeg = require('ffmpeg-static');
 process.env.FFMPEG_PATH = ffmpeg;
 console.log('📦 FFmpeg path:', ffmpeg);
+const player = require('./utils/player');
+global.player = player;
+console.log('✅ Плеер инициализирован');
 // ====== ИНИЦИАЛИЗАЦИЯ БОТА ======
 const client = new Client({
     intents: [
