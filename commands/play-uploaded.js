@@ -1,4 +1,4 @@
-const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus } = require('@discordjs/voice');
+const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus, entersState } = require('@discordjs/voice');
 const fs = require('fs');
 const path = require('path');
 
@@ -76,11 +76,33 @@ async function playSong(guildId) {
     }
 
     const song = serverQueue.songs[0];
-    const resource = createAudioResource(song.path);
-    serverQueue.player.play(resource);
 
-    serverQueue.player.on(AudioPlayerStatus.Idle, () => {
+    try {
+        // Проверяем, существует ли файл
+        if (!fs.existsSync(song.path)) {
+            console.error('❌ Файл не найден:', song.path);
+            serverQueue.songs.shift();
+            playSong(guildId);
+            return;
+        }
+
+        const resource = createAudioResource(song.path);
+        serverQueue.player.play(resource);
+
+        serverQueue.player.on(AudioPlayerStatus.Idle, () => {
+            serverQueue.songs.shift();
+            playSong(guildId);
+        });
+
+        serverQueue.player.on('error', (error) => {
+            console.error('❌ Ошибка плеера:', error);
+            serverQueue.songs.shift();
+            playSong(guildId);
+        });
+
+    } catch (error) {
+        console.error('❌ Ошибка воспроизведения:', error);
         serverQueue.songs.shift();
         playSong(guildId);
-    });
+    }
 }
