@@ -3,6 +3,10 @@ const fs = require('fs');
 const path = require('path');
 const { createReadStream } = require('fs');
 
+// Указываем путь к ffmpeg
+const ffmpeg = require('ffmpeg-static');
+process.env.FFMPEG_PATH = ffmpeg;
+
 const queue = new Map();
 
 module.exports = {
@@ -88,7 +92,6 @@ async function playSong(guildId) {
     try {
         console.log(`🎵 Воспроизвожу: ${song.path}`);
 
-        // Проверяем, что файл не пустой
         const stats = fs.statSync(song.path);
         if (stats.size === 0) {
             console.error('❌ Файл пустой');
@@ -97,9 +100,10 @@ async function playSong(guildId) {
             return;
         }
 
-        // Создаём поток для чтения файла
         const stream = createReadStream(song.path);
-        const resource = createAudioResource(stream);
+        const resource = createAudioResource(stream, {
+            inlineVolume: true
+        });
 
         serverQueue.player.play(resource);
 
