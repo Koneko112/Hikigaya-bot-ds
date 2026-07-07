@@ -6,146 +6,144 @@
     <style>
         .users-grid {
             display: grid;
-            gap: 14px;
-            margin-top: 24px;
+            gap: 8px;
+            margin-top: 16px;
         }
         .user-card {
-            background: linear-gradient(145deg, #1a1a2e, #131325);
-            border-radius: 16px;
+            background: #131325;
+            border-radius: 10px;
             border: 1px solid #2a2a50;
-            padding: 16px 24px;
+            padding: 10px 16px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             flex-wrap: wrap;
-            gap: 12px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-        }
-        .user-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, #7c5cfc, #a29bfe, #fdcb6e);
-            opacity: 0;
-            transition: 0.3s;
+            gap: 8px;
         }
         .user-card:hover {
             border-color: #7c5cfc;
-            transform: translateY(-2px) scale(1.01);
-            box-shadow: 0 8px 32px rgba(124, 92, 252, 0.15);
-        }
-        .user-card:hover::before {
-            opacity: 1;
+            background: #1a1a2e;
+            transform: translateX(4px);
         }
         .user-info {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 10px;
+            min-width: 150px;
             flex: 1;
-            min-width: 180px;
         }
         .user-avatar {
-            width: 44px;
-            height: 44px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             object-fit: cover;
-            border: 2px solid #2a2a50;
-            transition: 0.3s;
-        }
-        .user-card:hover .user-avatar {
-            border-color: #7c5cfc;
+            border: 1px solid #2a2a50;
+            flex-shrink: 0;
         }
         .user-name {
-            font-weight: 600;
-            font-size: 1rem;
+            font-weight: 500;
+            font-size: 0.9rem;
             color: #eee;
+            white-space: nowrap;
         }
         .user-id {
-            color: #8888aa;
-            font-size: 0.7rem;
+            color: #555;
+            font-size: 0.6rem;
             font-family: monospace;
             background: #0b0b14;
-            padding: 2px 8px;
-            border-radius: 4px;
+            padding: 1px 6px;
+            border-radius: 3px;
+            margin-left: 4px;
         }
         .user-roles {
             display: flex;
             flex-wrap: wrap;
-            gap: 6px;
+            gap: 4px;
             flex: 2;
-            min-width: 150px;
-            justify-content: flex-start;
+            min-width: 100px;
         }
         .role-tag {
-            font-size: 0.7rem;
-            padding: 4px 14px;
-            border-radius: 20px;
+            font-size: 0.6rem;
+            padding: 2px 10px;
+            border-radius: 12px;
             font-weight: 500;
             white-space: nowrap;
             border: 1px solid transparent;
-            transition: 0.2s;
+            background: rgba(124, 92, 252, 0.1);
+            color: #7c5cfc;
+            border-color: rgba(124, 92, 252, 0.15);
         }
         .role-tag:hover {
             transform: scale(1.05);
-            box-shadow: 0 0 20px currentColor20;
         }
         .user-joined {
             color: #555;
-            font-size: 0.75rem;
+            font-size: 0.65rem;
             white-space: nowrap;
-            min-width: 90px;
+            min-width: 70px;
             text-align: right;
         }
         .user-joined span {
-            color: #8888aa;
+            color: #666;
         }
         .badge {
-            font-size: 0.6rem;
-            padding: 2px 12px;
-            border-radius: 20px;
+            font-size: 0.5rem;
+            padding: 1px 8px;
+            border-radius: 10px;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-left: 8px;
+            letter-spacing: 0.3px;
+            margin-left: 4px;
+            white-space: nowrap;
         }
         .badge-dev {
-            background: linear-gradient(135deg, rgba(255, 107, 107, 0.2), rgba(255, 107, 107, 0.05));
+            background: rgba(255, 107, 107, 0.15);
             color: #ff6b6b;
-            border: 1px solid rgba(255, 107, 107, 0.2);
+            border: 1px solid rgba(255, 107, 107, 0.15);
         }
         .badge-staff {
-            background: linear-gradient(135deg, rgba(124, 92, 252, 0.2), rgba(124, 92, 252, 0.05));
+            background: rgba(124, 92, 252, 0.15);
             color: #7c5cfc;
-            border: 1px solid rgba(124, 92, 252, 0.2);
+            border: 1px solid rgba(124, 92, 252, 0.15);
         }
         .badge-admin {
-            background: linear-gradient(135deg, rgba(253, 203, 110, 0.2), rgba(253, 203, 110, 0.05));
+            background: rgba(253, 203, 110, 0.15);
             color: #fdcb6e;
-            border: 1px solid rgba(253, 203, 110, 0.2);
+            border: 1px solid rgba(253, 203, 110, 0.15);
         }
         .badge-bot {
-            background: linear-gradient(135deg, rgba(0, 184, 148, 0.2), rgba(0, 184, 148, 0.05));
+            background: rgba(0, 184, 148, 0.15);
             color: #00b894;
-            border: 1px solid rgba(0, 184, 148, 0.2);
+            border: 1px solid rgba(0, 184, 148, 0.15);
+        }
+        .btn-role {
+            background: #7c5cfc;
+            color: #fff;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.65rem;
+            white-space: nowrap;
+        }
+        .btn-role:hover {
+            background: #9b7cff;
         }
         .stats-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 16px;
-            margin-bottom: 8px;
+            gap: 12px;
+            margin-bottom: 4px;
         }
         .stats-header h1 {
+            font-size: 1.4rem;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
+            margin: 0;
         }
         .stats-header h1 span {
             background: linear-gradient(135deg, #7c5cfc, #a29bfe);
@@ -154,49 +152,48 @@
         }
         .stats-header .count {
             color: #8888aa;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
         }
         .stats-header .count strong {
             color: #eee;
         }
         .search-box {
-            padding: 10px 18px;
+            padding: 6px 14px;
             background: #0b0b14;
             border: 1px solid #2a2a50;
-            border-radius: 30px;
+            border-radius: 20px;
             color: #eee;
-            font-size: 0.9rem;
-            min-width: 200px;
+            font-size: 0.8rem;
+            min-width: 150px;
             transition: 0.3s;
-            backdrop-filter: blur(10px);
         }
         .search-box:focus {
             outline: none;
             border-color: #7c5cfc;
-            box-shadow: 0 0 30px rgba(124, 92, 252, 0.1);
+            box-shadow: 0 0 20px rgba(124, 92, 252, 0.05);
         }
         .search-box::placeholder {
             color: #555;
         }
         .filter-row {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             flex-wrap: wrap;
             align-items: center;
         }
         .filter-row select {
-            padding: 10px 18px;
+            padding: 6px 14px;
+            padding-right: 30px;
             background: #0b0b14;
             border: 1px solid #2a2a50;
-            border-radius: 30px;
+            border-radius: 20px;
             color: #eee;
+            font-size: 0.8rem;
             cursor: pointer;
-            transition: 0.3s;
             appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238888aa' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%238888aa' d='M5 7L1 3h8z'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
-            background-position: right 12px center;
-            padding-right: 36px;
+            background-position: right 10px center;
         }
         .filter-row select:focus {
             outline: none;
@@ -204,21 +201,97 @@
         }
         .empty-state {
             text-align: center;
-            padding: 60px 20px;
+            padding: 40px 20px;
             color: #8888aa;
         }
+
+        /* Модальное окно */
+        #roleModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        #roleModal .modal-content {
+            background: #131325;
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 400px;
+            width: 90%;
+            border: 1px solid #2a2a50;
+        }
+        #roleModal .modal-content h3 {
+            margin-bottom: 8px;
+        }
+        #roleModal .modal-content p {
+            color: #8888aa;
+            margin-bottom: 16px;
+        }
+        #roleModal .modal-content label {
+            color: #8888aa;
+            font-size: 0.9rem;
+        }
+        #roleModal .modal-content select {
+            width: 100%;
+            padding: 10px;
+            background: #0b0b14;
+            border: 1px solid #2a2a50;
+            border-radius: 8px;
+            color: #eee;
+            margin-top: 4px;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+        }
+        .modal-actions .btn-save {
+            flex: 1;
+            background: #7c5cfc;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .modal-actions .btn-save:hover {
+            background: #9b7cff;
+        }
+        .modal-actions .btn-cancel {
+            flex: 1;
+            background: #2a2a4a;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .modal-actions .btn-cancel:hover {
+            background: #3a3a5a;
+        }
+        #modalResult {
+            margin-top: 12px;
+            color: #8888aa;
+            text-align: center;
+        }
+
         @media (max-width: 768px) {
             .user-card {
                 flex-direction: column;
                 align-items: stretch;
-                padding: 16px;
+                padding: 10px 14px;
             }
             .user-info {
                 min-width: unset;
             }
             .user-roles {
                 min-width: unset;
-                justify-content: flex-start;
             }
             .user-joined {
                 text-align: left;
@@ -229,24 +302,24 @@
             }
         }
         @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
+            from { opacity: 0; transform: translateY(8px); }
             to { opacity: 1; transform: translateY(0); }
         }
         .user-card {
-            animation: fadeInUp 0.4s ease both;
+            animation: fadeInUp 0.3s ease both;
         }
-        .user-card:nth-child(1) { animation-delay: 0.02s; }
-        .user-card:nth-child(2) { animation-delay: 0.04s; }
-        .user-card:nth-child(3) { animation-delay: 0.06s; }
-        .user-card:nth-child(4) { animation-delay: 0.08s; }
-        .user-card:nth-child(5) { animation-delay: 0.10s; }
-        .user-card:nth-child(6) { animation-delay: 0.12s; }
-        .user-card:nth-child(7) { animation-delay: 0.14s; }
-        .user-card:nth-child(8) { animation-delay: 0.16s; }
-        .user-card:nth-child(9) { animation-delay: 0.18s; }
-        .user-card:nth-child(10) { animation-delay: 0.20s; }
-        .user-card:nth-child(11) { animation-delay: 0.22s; }
-        .user-card:nth-child(12) { animation-delay: 0.24s; }
+        .user-card:nth-child(1) { animation-delay: 0.01s; }
+        .user-card:nth-child(2) { animation-delay: 0.02s; }
+        .user-card:nth-child(3) { animation-delay: 0.03s; }
+        .user-card:nth-child(4) { animation-delay: 0.04s; }
+        .user-card:nth-child(5) { animation-delay: 0.05s; }
+        .user-card:nth-child(6) { animation-delay: 0.06s; }
+        .user-card:nth-child(7) { animation-delay: 0.07s; }
+        .user-card:nth-child(8) { animation-delay: 0.08s; }
+        .user-card:nth-child(9) { animation-delay: 0.09s; }
+        .user-card:nth-child(10) { animation-delay: 0.10s; }
+        .user-card:nth-child(11) { animation-delay: 0.11s; }
+        .user-card:nth-child(12) { animation-delay: 0.12s; }
     </style>
 </head>
 <body>
@@ -267,13 +340,11 @@
     <div class="container">
         <div class="stats-header">
             <div>
-                <h1>
-                    👥 <span>Все пользователи</span>
-                </h1>
-                <p class="count">Всего участников: <strong><%= members.length %></strong></p>
+                <h1>👥 <span>Все пользователи</span></h1>
+                <p class="count">Всего: <strong><%= members.length %></strong></p>
             </div>
             <div class="filter-row">
-                <input type="text" id="searchInput" class="search-box" placeholder="🔍 Поиск по имени...">
+                <input type="text" id="searchInput" class="search-box" placeholder="🔍 Поиск...">
                 <select id="roleFilter">
                     <option value="all">🎭 Все роли</option>
                 </select>
@@ -289,41 +360,43 @@
                         <div class="user-info">
                             <img src="<%= m.avatar %>" alt="<%= m.username %>" class="user-avatar" loading="lazy">
                             <div>
-                                <div class="user-name">
+                                <span class="user-name">
                                     <%= m.username %>
                                     <% if (m.roles.includes('Разработчик')) { %>
-                                        <span class="badge badge-dev">⚡ DEV</span>
+                                        <span class="badge badge-dev">DEV</span>
                                     <% } else if (m.roles.includes('Staff') || m.roles.includes('Модератор')) { %>
-                                        <span class="badge badge-staff">🛡 STAFF</span>
+                                        <span class="badge badge-staff">STAFF</span>
                                     <% } else if (m.roles.includes('Управляющий') || m.roles.includes('Admin')) { %>
-                                        <span class="badge badge-admin">👑 ADMIN</span>
+                                        <span class="badge badge-admin">ADMIN</span>
                                     <% } else if (m.roles.includes('Боты')) { %>
-                                        <span class="badge badge-bot">🤖 BOT</span>
+                                        <span class="badge badge-bot">BOT</span>
                                     <% } %>
-                                </div>
-                                <div class="user-id"><%= m.id %></div>
+                                </span>
+                                <span class="user-id"><%= m.id %></span>
                             </div>
                         </div>
 
                         <div class="user-roles">
                             <% 
                             const roleList = m.roles.split(', ');
-                            const colors = ['#7c5cfc', '#fdcb6e', '#ff6b6b', '#00b894', '#4ecdc4', '#a29bfe', '#fd79a8', '#55efc4', '#74b9ff', '#fdcb6e'];
+                            const colors = ['#7c5cfc', '#fdcb6e', '#ff6b6b', '#00b894', '#4ecdc4', '#a29bfe', '#fd79a8', '#55efc4', '#74b9ff'];
                             %>
                             <% roleList.forEach((role, index) => { %>
                                 <% if (role !== '@everyone') { %>
-                                    <span class="role-tag" style="background: <%= colors[index % colors.length] %>20; color: <%= colors[index % colors.length] %>; border-color: <%= colors[index % colors.length] %>40;">
+                                    <span class="role-tag" style="background: <%= colors[index % colors.length] %>15; color: <%= colors[index % colors.length] %>; border-color: <%= colors[index % colors.length] %>25;">
                                         <%= role %>
                                     </span>
                                 <% } %>
                             <% }); %>
                             <% if (roleList.length === 1 && roleList[0] === '@everyone') { %>
-                                <span style="color: #555; font-size: 0.75rem;">Нет ролей</span>
+                                <span style="color: #555; font-size: 0.65rem;">Нет ролей</span>
                             <% } %>
                         </div>
 
+                        <button class="btn-role" onclick="openRoleModal('<%= m.id %>', '<%= m.username %>')">🎭 Роль</button>
+
                         <div class="user-joined">
-                            🕐 <span><%= new Date(m.joinedAt).toLocaleDateString('ru-RU') %></span>
+                            <span><%= new Date(m.joinedAt).toLocaleDateString('ru-RU') %></span>
                         </div>
                     </div>
                 <% }); %>
@@ -331,7 +404,44 @@
         </div>
     </div>
 
+    <!-- МОДАЛЬНОЕ ОКНО -->
+    <div id="roleModal">
+        <div class="modal-content">
+            <h3>🎭 Сменить роль</h3>
+            <p>Пользователь: <strong id="modalUserName"></strong></p>
+            <input type="hidden" id="modalUserId">
+            
+            <label>Выберите роль:</label>
+            <select id="modalRoleSelect">
+                <option value="none">🚫 Без роли</option>
+            </select>
+            
+            <div class="modal-actions">
+                <button class="btn-save" onclick="saveRole()">💾 Сохранить</button>
+                <button class="btn-cancel" onclick="closeModal()">❌ Отмена</button>
+            </div>
+            <div id="modalResult"></div>
+        </div>
+    </div>
+
     <script>
+        // ===== ЗАГРУЗКА РОЛЕЙ =====
+        let rolesList = [];
+
+        async function loadRoles() {
+            try {
+                const res = await fetch('/api/guild-roles');
+                const data = await res.json();
+                if (data.success) {
+                    rolesList = data.roles;
+                }
+            } catch (e) {
+                console.error('Ошибка загрузки ролей:', e);
+            }
+        }
+        loadRoles();
+
+        // ===== ПОИСК =====
         document.getElementById('searchInput').addEventListener('input', function() {
             const query = this.value.toLowerCase();
             document.querySelectorAll('.user-card').forEach(card => {
@@ -339,6 +449,7 @@
             });
         });
 
+        // ===== ФИЛЬТР ПО РОЛЯМ =====
         const roleFilter = document.getElementById('roleFilter');
         const allRoles = new Set();
         document.querySelectorAll('.user-card').forEach(card => {
@@ -360,6 +471,66 @@
                 }
                 card.style.display = card.dataset.roles.split(', ').includes(selected) ? 'flex' : 'none';
             });
+        });
+
+        // ===== МОДАЛЬНОЕ ОКНО =====
+        function openRoleModal(userId, userName) {
+            document.getElementById('modalUserId').value = userId;
+            document.getElementById('modalUserName').textContent = userName;
+            
+            const select = document.getElementById('modalRoleSelect');
+            select.innerHTML = '<option value="none">🚫 Без роли</option>';
+            
+            rolesList.forEach(role => {
+                const option = document.createElement('option');
+                option.value = role.id;
+                option.textContent = role.name;
+                if (role.color) option.style.color = role.color;
+                select.appendChild(option);
+            });
+            
+            document.getElementById('roleModal').style.display = 'flex';
+            document.getElementById('modalResult').textContent = '';
+        }
+
+        function closeModal() {
+            document.getElementById('roleModal').style.display = 'none';
+        }
+
+        async function saveRole() {
+            const userId = document.getElementById('modalUserId').value;
+            const roleId = document.getElementById('modalRoleSelect').value;
+            const result = document.getElementById('modalResult');
+            
+            result.textContent = '⏳ Сохранение...';
+            result.style.color = '#8888aa';
+            
+            try {
+                const res = await fetch('/api/admin/set-role', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId, roleId })
+                });
+                const data = await res.json();
+                
+                result.textContent = data.success ? '✅ ' + data.message : '❌ ' + data.error;
+                result.style.color = data.success ? '#00b894' : '#ff6b6b';
+                
+                if (data.success) {
+                    setTimeout(() => {
+                        closeModal();
+                        location.reload();
+                    }, 1500);
+                }
+            } catch (e) {
+                result.textContent = '❌ Ошибка соединения';
+                result.style.color = '#ff6b6b';
+            }
+        }
+
+        // ===== ЗАКРЫТИЕ ПО КЛИКУ ВНЕ МОДАЛКИ =====
+        document.getElementById('roleModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
         });
     </script>
 </body>
