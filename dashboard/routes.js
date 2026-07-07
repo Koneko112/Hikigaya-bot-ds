@@ -38,6 +38,7 @@ function isAuthenticated(req, res, next) {
     if (req.isAuthenticated()) return next();
     res.redirect('/');
 }
+module.exports = router;
 
 function isAdmin(req, res, next) {
     if (!req.isAuthenticated()) return res.redirect('/');
