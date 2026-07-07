@@ -104,19 +104,18 @@
         </div>
 
         <!-- КАРТОЧКИ АДМИНКИ -->
+<a href="/admin/all-users" class="admin-card">
+    <span class="icon">👥</span>
+    <div class="title">Все пользователи</div>
+    <div class="desc">Список с ролями</div>
+    <span class="badge">Новый дизайн</span>
+</a>
         <div class="admin-grid">
             <a href="/admin/users" class="admin-card">
                 <span class="icon">👥</span>
                 <div class="title">Пользователи</div>
                 <div class="desc">Управление балансом</div>
                 <span class="badge"><%= stats.totalUsers || 0 %> чел.</span>
-            </a>
-
-            <a href="/admin/all-users" class="admin-card">
-                <span class="icon">📋</span>
-                <div class="title">Все пользователи</div>
-                <div class="desc">Полный список сервера</div>
-                <span class="badge">Все участники</span>
             </a>
 
             <a href="/warnings" class="admin-card">
