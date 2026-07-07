@@ -1,7 +1,7 @@
 const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus } = require('@discordjs/voice');
 const fs = require('fs');
 const path = require('path');
-const play = require('play-dl');
+const { createReadStream } = require('fs');
 
 const queue = new Map();
 
@@ -88,14 +88,18 @@ async function playSong(guildId) {
     try {
         console.log(`🎵 Воспроизвожу: ${song.path}`);
 
-        // Используем play-dl для создания потока
-        const stream = await play.stream(song.path, {
-            discordPlayerCompatibility: true
-        });
+        // Проверяем, что файл не пустой
+        const stats = fs.statSync(song.path);
+        if (stats.size === 0) {
+            console.error('❌ Файл пустой');
+            serverQueue.songs.shift();
+            playSong(guildId);
+            return;
+        }
 
-        const resource = createAudioResource(stream.stream, {
-            inputType: stream.type
-        });
+        // Создаём поток для чтения файла
+        const stream = createReadStream(song.path);
+        const resource = createAudioResource(stream);
 
         serverQueue.player.play(resource);
 
