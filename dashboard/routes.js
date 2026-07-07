@@ -952,4 +952,23 @@ router.post('/api/admin/set-role', isAdmin, async (req, res) => {
         res.json({ success: false, error: 'Ошибка сервера: ' + error.message });
     }
 });
+// ============= ПОИСК ПОЛЬЗОВАТЕЛЕЙ =============
+router.get('/api/users/search', isAdmin, async (req, res) => {
+    const query = req.query.q?.toLowerCase() || '';
+    try {
+        const guildId = '1208677626961727528';
+        const guild = global.discordClient.guilds.cache.get(guildId);
+        if (!guild) return res.json({ users: [] });
+        
+        await guild.members.fetch();
+        const members = guild.members.cache
+            .filter(m => m.user.username.toLowerCase().includes(query) || m.id.includes(query))
+            .map(m => ({ id: m.id, username: m.user.username, avatar: m.user.displayAvatarURL() }))
+            .slice(0, 20);
+        res.json({ users: members });
+    } catch (error) {
+        console.error('Ошибка поиска:', error);
+        res.json({ users: [] });
+    }
+});
 module.exports = router;
