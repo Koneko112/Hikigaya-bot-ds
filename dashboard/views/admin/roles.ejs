@@ -167,13 +167,13 @@
         <h2>📋 Существующие роли</h2>
         <div class="roles-grid">
             <% if (roles && roles.length > 0) { %>
-                <% roles.forEach(role => { %>
+                <% roles.forEach(function(role) { %>
                     <div class="role-card">
                         <h3>🎭 <%= role.name %></h3>
                         <div class="perms">
                             Права: 
                             <% if (role.permissions && role.permissions.length > 0) { %>
-                                <% role.permissions.forEach(p => { %>
+                                <% role.permissions.forEach(function(p) { %>
                                     <span><%= p %></span>
                                 <% }); %>
                             <% } else { %>
@@ -209,7 +209,7 @@
                 
                 <select id="assignRoleId" style="padding: 8px 12px; background: #0b0b14; border: 1px solid #2a2a50; border-radius: 6px; color: #eee;">
                     <% if (roles && roles.length > 0) { %>
-                        <% roles.forEach(role => { %>
+                        <% roles.forEach(function(role) { %>
                             <option value="<%= role.id %>"><%= role.name %></option>
                         <% }); %>
                     <% } %>
@@ -233,13 +233,25 @@
                 </thead>
                 <tbody>
                     <% if (users && Object.keys(users).length > 0) { %>
-                        <% for (const [userId, userRoles] of Object.entries(users)) { %>
+                        <% for (var userId in users) { %>
+                            <% var userRoles = users[userId]; %>
                             <tr>
                                 <td><code><%= userId %></code></td>
                                 <td>
-                                    <% userRoles.forEach(roleId => { %>
+                                    <% userRoles.forEach(function(roleId) { %>
                                         <span class="user-tag">
-                                            <%= (roles || []).find(r => r.id === roleId)?.name || roleId %>
+                                            <% 
+                                                var foundRole = null;
+                                                if (roles) {
+                                                    for (var i = 0; i < roles.length; i++) {
+                                                        if (roles[i].id === roleId) {
+                                                            foundRole = roles[i];
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            %>
+                                            <%= foundRole ? foundRole.name : roleId %>
                                         </span>
                                     <% }); %>
                                 </td>
@@ -247,9 +259,20 @@
                                     <form method="POST" action="/api/admin/roles/remove" style="display: inline;">
                                         <input type="hidden" name="userId" value="<%= userId %>">
                                         <select name="roleId" style="padding: 4px 8px; background: #0b0b14; border: 1px solid #2a2a50; border-radius: 4px; color: #eee;">
-                                            <% userRoles.forEach(roleId => { %>
+                                            <% userRoles.forEach(function(roleId) { %>
                                                 <option value="<%= roleId %>">
-                                                    <%= (roles || []).find(r => r.id === roleId)?.name || roleId %>
+                                                    <% 
+                                                        var foundRole = null;
+                                                        if (roles) {
+                                                            for (var i = 0; i < roles.length; i++) {
+                                                                if (roles[i].id === roleId) {
+                                                                    foundRole = roles[i];
+                                                                    break;
+                                                                }
+                                                            }
+                                                        }
+                                                    %>
+                                                    <%= foundRole ? foundRole.name : roleId %>
                                                 </option>
                                             <% }); %>
                                         </select>
@@ -257,7 +280,7 @@
                                     </form>
                                 </td>
                             </tr>
-                        <% }); %>
+                        <% } %>
                     <% } else { %>
                         <tr><td colspan="3" style="text-align: center; color: #8888aa;">Нет пользователей с ролями</td></tr>
                     <% } %>
@@ -268,25 +291,25 @@
 
     <script>
         // ===== СОЗДАНИЕ РОЛИ =====
-        document.getElementById('createRoleForm').addEventListener('submit', async (e) => {
+        document.getElementById('createRoleForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            const result = document.getElementById('createResult');
-            const name = document.getElementById('roleName').value.trim();
-            const permissions = document.getElementById('rolePermissions').value.trim();
+            var result = document.getElementById('createResult');
+            var name = document.getElementById('roleName').value.trim();
+            var permissions = document.getElementById('rolePermissions').value.trim();
             
             result.textContent = '⏳ Создание...';
             result.style.color = '#8888aa';
             
             try {
-                const response = await fetch('/api/admin/roles/create', {
+                var response = await fetch('/api/admin/roles/create', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, permissions })
+                    body: JSON.stringify({ name: name, permissions: permissions })
                 });
-                const json = await response.json();
+                var json = await response.json();
                 result.textContent = json.success ? '✅ ' + json.message : '❌ ' + json.error;
                 result.style.color = json.success ? '#00b894' : '#ff6b6b';
-                if (json.success) setTimeout(() => location.reload(), 1500);
+                if (json.success) setTimeout(function() { location.reload(); }, 1500);
             } catch (error) {
                 result.textContent = '❌ Ошибка соединения';
                 result.style.color = '#ff6b6b';
@@ -294,13 +317,13 @@
         });
 
         // ===== ПОИСК ПОЛЬЗОВАТЕЛЕЙ =====
-        const searchInput = document.getElementById('userSearch');
-        const searchResults = document.getElementById('userSearchResults');
-        const hiddenUserId = document.getElementById('assignUserId');
-        let searchTimeout;
+        var searchInput = document.getElementById('userSearch');
+        var searchResults = document.getElementById('userSearchResults');
+        var hiddenUserId = document.getElementById('assignUserId');
+        var searchTimeout;
         
         searchInput.addEventListener('input', async function() {
-            const query = this.value.trim();
+            var query = this.value.trim();
             clearTimeout(searchTimeout);
             
             if (query.length < 2) {
@@ -308,10 +331,10 @@
                 return;
             }
             
-            searchTimeout = setTimeout(async () => {
+            searchTimeout = setTimeout(async function() {
                 try {
-                    const response = await fetch(`/api/users/search?q=${encodeURIComponent(query)}`);
-                    const data = await response.json();
+                    var response = await fetch('/api/users/search?q=' + encodeURIComponent(query));
+                    var data = await response.json();
                     
                     if (data.users.length === 0) {
                         searchResults.innerHTML = '<div style="padding: 8px 12px; color: #8888aa;">Пользователи не найдены</div>';
@@ -319,20 +342,21 @@
                         return;
                     }
                     
-                    searchResults.innerHTML = data.users.map(user => `
-                        <div class="user-result" data-userid="${user.id}">
-                            <img src="${user.avatar}" style="width: 28px; height: 28px; border-radius: 50%;">
-                            <span><strong>${user.username}</strong></span>
-                            <span style="color: #8888aa; font-size: 0.75rem;">${user.id}</span>
-                        </div>
-                    `).join('');
-                    
+                    var html = '';
+                    data.users.forEach(function(user) {
+                        html += '<div class="user-result" data-userid="' + user.id + '">';
+                        html += '<img src="' + user.avatar + '" style="width: 28px; height: 28px; border-radius: 50%;">';
+                        html += '<span><strong>' + user.username + '</strong></span>';
+                        html += '<span style="color: #8888aa; font-size: 0.75rem;">' + user.id + '</span>';
+                        html += '</div>';
+                    });
+                    searchResults.innerHTML = html;
                     searchResults.style.display = 'block';
                     
-                    document.querySelectorAll('.user-result').forEach(el => {
+                    document.querySelectorAll('.user-result').forEach(function(el) {
                         el.addEventListener('click', function() {
-                            const userId = this.dataset.userid;
-                            const username = this.querySelector('strong').textContent;
+                            var userId = this.dataset.userid;
+                            var username = this.querySelector('strong').textContent;
                             searchInput.value = username;
                             hiddenUserId.value = userId;
                             searchResults.style.display = 'none';
@@ -351,11 +375,11 @@
         });
 
         // ===== НАЗНАЧЕНИЕ РОЛИ =====
-        document.getElementById('assignRoleForm').addEventListener('submit', async (e) => {
+        document.getElementById('assignRoleForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            const result = document.getElementById('assignResult');
-            const userId = hiddenUserId.value.trim();
-            const roleId = document.getElementById('assignRoleId').value;
+            var result = document.getElementById('assignResult');
+            var userId = hiddenUserId.value.trim();
+            var roleId = document.getElementById('assignRoleId').value;
             
             if (!userId) {
                 result.textContent = '❌ Выберите пользователя из списка';
@@ -367,15 +391,15 @@
             result.style.color = '#8888aa';
             
             try {
-                const response = await fetch('/api/admin/roles/assign', {
+                var response = await fetch('/api/admin/roles/assign', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId, roleId })
+                    body: JSON.stringify({ userId: userId, roleId: roleId })
                 });
-                const json = await response.json();
+                var json = await response.json();
                 result.textContent = json.success ? '✅ ' + json.message : '❌ ' + json.error;
                 result.style.color = json.success ? '#00b894' : '#ff6b6b';
-                if (json.success) setTimeout(() => location.reload(), 1500);
+                if (json.success) setTimeout(function() { location.reload(); }, 1500);
             } catch (error) {
                 result.textContent = '❌ Ошибка соединения';
                 result.style.color = '#ff6b6b';
