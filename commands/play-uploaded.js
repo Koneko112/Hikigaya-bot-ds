@@ -1,9 +1,7 @@
 const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus } = require('@discordjs/voice');
 const fs = require('fs');
 const path = require('path');
-
-// Принудительно подключаем opusscript
-require('opusscript');
+const play = require('play-dl');
 
 const queue = new Map();
 
@@ -90,8 +88,13 @@ async function playSong(guildId) {
     try {
         console.log(`🎵 Воспроизвожу: ${song.path}`);
 
-        const resource = createAudioResource(song.path, {
-            inlineVolume: true
+        // Используем play-dl для создания потока
+        const stream = await play.stream(song.path, {
+            discordPlayerCompatibility: true
+        });
+
+        const resource = createAudioResource(stream.stream, {
+            inputType: stream.type
         });
 
         serverQueue.player.play(resource);
