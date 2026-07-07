@@ -7,7 +7,9 @@ const passport = require('passport');
 const DiscordStrategy = require('passport-discord').Strategy;
 const path = require('path');
 const fs = require('fs');
-
+const ffmpeg = require('ffmpeg-static');
+process.env.FFMPEG_PATH = ffmpeg;
+console.log('📦 FFmpeg path:', ffmpeg);
 // ====== ИНИЦИАЛИЗАЦИЯ БОТА ======
 const client = new Client({
     intents: [
