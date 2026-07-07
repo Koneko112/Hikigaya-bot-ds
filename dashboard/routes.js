@@ -907,5 +907,38 @@ router.post('/api/warnings/clear', isAdmin, (req, res) => {
     
     res.json({ success: true, message: 'Варны очищены' });
 });
+// ============= СМЕНА РОЛИ В DISCORD =============
+router.post('/api/admin/set-role', isAdmin, async (req, res) => {
+    try {
+        const { userId, roleId } = req.body;
+        const guildId = '1208677626961727528'; // ID твоего сервера
+        
+        const guild = global.discordClient.guilds.cache.get(guildId);
+        if (!guild) {
+            return res.json({ success: false, error: 'Сервер не найден' });
+        }
 
+        const member = await guild.members.fetch(userId);
+        if (!member) {
+            return res.json({ success: false, error: 'Пользователь не найден' });
+        }
+
+        // Удаляем все роли, кроме @everyone
+        const rolesToRemove = member.roles.cache.filter(r => r.id !== guildId);
+        await member.roles.remove(rolesToRemove);
+
+        // Добавляем новую роль (если выбрана не "Без роли")
+        if (roleId !== 'none') {
+            const role = await guild.roles.fetch(roleId);
+            if (role) {
+                await member.roles.add(role);
+            }
+        }
+
+        res.json({ success: true, message: 'Роль успешно изменена!' });
+    } catch (error) {
+        console.error('Ошибка смены роли:', error);
+        res.json({ success: false, error: 'Ошибка сервера: ' + error.message });
+    }
+});
 module.exports = router;
