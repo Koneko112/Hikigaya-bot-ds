@@ -45,6 +45,10 @@ module.exports = {
             path: targetTrack.path,
             requestedBy: message.author.tag
         };
+        // ===== ОТЛАДКА =====
+console.log('📂 Путь к файлу:', song.path);
+console.log('📂 Файл существует?', fs.existsSync(song.path));
+// ==================
 
         let serverQueue = queue.get(message.guildId);
 
