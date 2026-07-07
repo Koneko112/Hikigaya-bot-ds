@@ -6,59 +6,94 @@
     <style>
         .users-grid {
             display: grid;
-            gap: 12px;
-            margin-top: 20px;
+            gap: 14px;
+            margin-top: 24px;
         }
         .user-card {
-            background: #131325;
-            border-radius: 12px;
+            background: linear-gradient(145deg, #1a1a2e, #131325);
+            border-radius: 16px;
             border: 1px solid #2a2a50;
-            padding: 16px 20px;
+            padding: 16px 24px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            transition: 0.3s;
+            transition: all 0.3s ease;
             flex-wrap: wrap;
             gap: 12px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+        }
+        .user-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #7c5cfc, #a29bfe, #fdcb6e);
+            opacity: 0;
+            transition: 0.3s;
         }
         .user-card:hover {
             border-color: #7c5cfc;
-            transform: translateX(4px);
+            transform: translateY(-2px) scale(1.01);
+            box-shadow: 0 8px 32px rgba(124, 92, 252, 0.15);
+        }
+        .user-card:hover::before {
+            opacity: 1;
         }
         .user-info {
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 16px;
             flex: 1;
             min-width: 180px;
         }
         .user-avatar {
-            width: 40px;
-            height: 40px;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
             object-fit: cover;
+            border: 2px solid #2a2a50;
+            transition: 0.3s;
+        }
+        .user-card:hover .user-avatar {
+            border-color: #7c5cfc;
         }
         .user-name {
             font-weight: 600;
+            font-size: 1rem;
+            color: #eee;
         }
         .user-id {
             color: #8888aa;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
+            font-family: monospace;
+            background: #0b0b14;
+            padding: 2px 8px;
+            border-radius: 4px;
         }
         .user-roles {
             display: flex;
             flex-wrap: wrap;
-            gap: 4px;
-            flex: 1;
+            gap: 6px;
+            flex: 2;
             min-width: 150px;
+            justify-content: flex-start;
         }
         .role-tag {
             font-size: 0.7rem;
-            padding: 2px 10px;
-            border-radius: 12px;
+            padding: 4px 14px;
+            border-radius: 20px;
             font-weight: 500;
             white-space: nowrap;
             border: 1px solid transparent;
+            transition: 0.2s;
+        }
+        .role-tag:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px currentColor20;
         }
         .user-joined {
             color: #555;
@@ -70,36 +105,78 @@
         .user-joined span {
             color: #8888aa;
         }
-        .badge-dev {
-            background: rgba(255, 107, 107, 0.15);
-            color: #ff6b6b;
+        .badge {
+            font-size: 0.6rem;
             padding: 2px 12px;
-            border-radius: 12px;
-            font-size: 0.65rem;
-            font-weight: 600;
+            border-radius: 20px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
             margin-left: 8px;
+        }
+        .badge-dev {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.2), rgba(255, 107, 107, 0.05));
+            color: #ff6b6b;
+            border: 1px solid rgba(255, 107, 107, 0.2);
         }
         .badge-staff {
-            background: rgba(124, 92, 252, 0.15);
+            background: linear-gradient(135deg, rgba(124, 92, 252, 0.2), rgba(124, 92, 252, 0.05));
             color: #7c5cfc;
-            padding: 2px 12px;
-            border-radius: 12px;
-            font-size: 0.65rem;
-            font-weight: 600;
-            margin-left: 8px;
+            border: 1px solid rgba(124, 92, 252, 0.2);
+        }
+        .badge-admin {
+            background: linear-gradient(135deg, rgba(253, 203, 110, 0.2), rgba(253, 203, 110, 0.05));
+            color: #fdcb6e;
+            border: 1px solid rgba(253, 203, 110, 0.2);
+        }
+        .badge-bot {
+            background: linear-gradient(135deg, rgba(0, 184, 148, 0.2), rgba(0, 184, 148, 0.05));
+            color: #00b894;
+            border: 1px solid rgba(0, 184, 148, 0.2);
+        }
+        .stats-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 8px;
+        }
+        .stats-header h1 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .stats-header h1 span {
+            background: linear-gradient(135deg, #7c5cfc, #a29bfe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .stats-header .count {
+            color: #8888aa;
+            font-size: 0.9rem;
+        }
+        .stats-header .count strong {
+            color: #eee;
         }
         .search-box {
-            padding: 8px 16px;
+            padding: 10px 18px;
             background: #0b0b14;
             border: 1px solid #2a2a50;
-            border-radius: 8px;
+            border-radius: 30px;
             color: #eee;
             font-size: 0.9rem;
             min-width: 200px;
+            transition: 0.3s;
+            backdrop-filter: blur(10px);
         }
         .search-box:focus {
             outline: none;
             border-color: #7c5cfc;
+            box-shadow: 0 0 30px rgba(124, 92, 252, 0.1);
+        }
+        .search-box::placeholder {
+            color: #555;
         }
         .filter-row {
             display: flex;
@@ -108,27 +185,68 @@
             align-items: center;
         }
         .filter-row select {
-            padding: 8px 12px;
+            padding: 10px 18px;
             background: #0b0b14;
             border: 1px solid #2a2a50;
-            border-radius: 8px;
+            border-radius: 30px;
             color: #eee;
+            cursor: pointer;
+            transition: 0.3s;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238888aa' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 36px;
+        }
+        .filter-row select:focus {
+            outline: none;
+            border-color: #7c5cfc;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #8888aa;
         }
         @media (max-width: 768px) {
             .user-card {
                 flex-direction: column;
                 align-items: stretch;
+                padding: 16px;
             }
             .user-info {
                 min-width: unset;
             }
             .user-roles {
                 min-width: unset;
+                justify-content: flex-start;
             }
             .user-joined {
                 text-align: left;
             }
+            .stats-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
         }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .user-card {
+            animation: fadeInUp 0.4s ease both;
+        }
+        .user-card:nth-child(1) { animation-delay: 0.02s; }
+        .user-card:nth-child(2) { animation-delay: 0.04s; }
+        .user-card:nth-child(3) { animation-delay: 0.06s; }
+        .user-card:nth-child(4) { animation-delay: 0.08s; }
+        .user-card:nth-child(5) { animation-delay: 0.10s; }
+        .user-card:nth-child(6) { animation-delay: 0.12s; }
+        .user-card:nth-child(7) { animation-delay: 0.14s; }
+        .user-card:nth-child(8) { animation-delay: 0.16s; }
+        .user-card:nth-child(9) { animation-delay: 0.18s; }
+        .user-card:nth-child(10) { animation-delay: 0.20s; }
+        .user-card:nth-child(11) { animation-delay: 0.22s; }
+        .user-card:nth-child(12) { animation-delay: 0.24s; }
     </style>
 </head>
 <body>
@@ -147,59 +265,69 @@
     </nav>
 
     <div class="container">
-        <div class="stats-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 8px;">
+        <div class="stats-header">
             <div>
-                <h1 style="margin-bottom: 4px;">👥 Все пользователи</h1>
-                <p style="color: #8888aa;">Всего участников: <strong><%= members.length %></strong></p>
+                <h1>
+                    👥 <span>Все пользователи</span>
+                </h1>
+                <p class="count">Всего участников: <strong><%= members.length %></strong></p>
             </div>
             <div class="filter-row">
                 <input type="text" id="searchInput" class="search-box" placeholder="🔍 Поиск по имени...">
                 <select id="roleFilter">
-                    <option value="all">Все роли</option>
+                    <option value="all">🎭 Все роли</option>
                 </select>
             </div>
         </div>
 
         <div class="users-grid" id="usersContainer">
-            <% members.forEach(m => { %>
-                <div class="user-card" data-name="<%= m.username.toLowerCase() %>" data-roles="<%= m.roles %>">
-                    <div class="user-info">
-                        <img src="<%= m.avatar %>" alt="<%= m.username %>" class="user-avatar" loading="lazy">
-                        <div>
-                            <div class="user-name">
-                                <%= m.username %>
-                                <% if (m.roles.includes('Разработчик')) { %>
-                                    <span class="badge-dev">DEV</span>
-                                <% } else if (m.roles.includes('Staff') || m.roles.includes('Модератор')) { %>
-                                    <span class="badge-staff">STAFF</span>
-                                <% } %>
+            <% if (members.length === 0) { %>
+                <div class="empty-state">📭 Пользователей пока нет</div>
+            <% } else { %>
+                <% members.forEach(m => { %>
+                    <div class="user-card" data-name="<%= m.username.toLowerCase() %>" data-roles="<%= m.roles %>">
+                        <div class="user-info">
+                            <img src="<%= m.avatar %>" alt="<%= m.username %>" class="user-avatar" loading="lazy">
+                            <div>
+                                <div class="user-name">
+                                    <%= m.username %>
+                                    <% if (m.roles.includes('Разработчик')) { %>
+                                        <span class="badge badge-dev">⚡ DEV</span>
+                                    <% } else if (m.roles.includes('Staff') || m.roles.includes('Модератор')) { %>
+                                        <span class="badge badge-staff">🛡 STAFF</span>
+                                    <% } else if (m.roles.includes('Управляющий') || m.roles.includes('Admin')) { %>
+                                        <span class="badge badge-admin">👑 ADMIN</span>
+                                    <% } else if (m.roles.includes('Боты')) { %>
+                                        <span class="badge badge-bot">🤖 BOT</span>
+                                    <% } %>
+                                </div>
+                                <div class="user-id"><%= m.id %></div>
                             </div>
-                            <div class="user-id"><%= m.id %></div>
+                        </div>
+
+                        <div class="user-roles">
+                            <% 
+                            const roleList = m.roles.split(', ');
+                            const colors = ['#7c5cfc', '#fdcb6e', '#ff6b6b', '#00b894', '#4ecdc4', '#a29bfe', '#fd79a8', '#55efc4', '#74b9ff', '#fdcb6e'];
+                            %>
+                            <% roleList.forEach((role, index) => { %>
+                                <% if (role !== '@everyone') { %>
+                                    <span class="role-tag" style="background: <%= colors[index % colors.length] %>20; color: <%= colors[index % colors.length] %>; border-color: <%= colors[index % colors.length] %>40;">
+                                        <%= role %>
+                                    </span>
+                                <% } %>
+                            <% }); %>
+                            <% if (roleList.length === 1 && roleList[0] === '@everyone') { %>
+                                <span style="color: #555; font-size: 0.75rem;">Нет ролей</span>
+                            <% } %>
+                        </div>
+
+                        <div class="user-joined">
+                            🕐 <span><%= new Date(m.joinedAt).toLocaleDateString('ru-RU') %></span>
                         </div>
                     </div>
-
-                    <div class="user-roles">
-                        <% 
-                        const roleList = m.roles.split(', ');
-                        const colors = ['#7c5cfc', '#fdcb6e', '#ff6b6b', '#00b894', '#4ecdc4', '#a29bfe', '#fd79a8', '#55efc4', '#74b9ff'];
-                        %>
-                        <% roleList.forEach((role, index) => { %>
-                            <% if (role !== '@everyone') { %>
-                                <span class="role-tag" style="background: <%= colors[index % colors.length] %>20; color: <%= colors[index % colors.length] %>; border-color: <%= colors[index % colors.length] %>40;">
-                                    <%= role %>
-                                </span>
-                            <% } %>
-                        <% }); %>
-                        <% if (roleList.length === 1 && roleList[0] === '@everyone') { %>
-                            <span style="color: #555; font-size: 0.75rem;">Нет ролей</span>
-                        <% } %>
-                    </div>
-
-                    <div class="user-joined">
-                        🕐 <span><%= new Date(m.joinedAt).toLocaleDateString('ru-RU') %></span>
-                    </div>
-                </div>
-            <% }); %>
+                <% }); %>
+            <% } %>
         </div>
     </div>
 
@@ -235,4 +363,5 @@
         });
     </script>
 </body>
+</html>
 </html>
