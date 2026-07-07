@@ -911,7 +911,7 @@ router.post('/api/warnings/clear', isAdmin, (req, res) => {
 router.post('/api/admin/set-role', isAdmin, async (req, res) => {
     try {
         const { userId, roleId } = req.body;
-        const guildId = '1208677626961727528'; // ID твоего сервера
+        const guildId = '1208677626961727528';
         
         const guild = global.discordClient.guilds.cache.get(guildId);
         if (!guild) {
@@ -923,19 +923,30 @@ router.post('/api/admin/set-role', isAdmin, async (req, res) => {
             return res.json({ success: false, error: 'Пользователь не найден' });
         }
 
-        // Удаляем все роли, кроме @everyone
-        const rolesToRemove = member.roles.cache.filter(r => r.id !== guildId);
-        await member.roles.remove(rolesToRemove);
-
-        // Добавляем новую роль (если выбрана не "Без роли")
-        if (roleId !== 'none') {
-            const role = await guild.roles.fetch(roleId);
-            if (role) {
-                await member.roles.add(role);
-            }
+        // УДАЛЯЕМ ТОЛЬКО ВЫБРАННУЮ РОЛЬ, ЕСЛИ ОНА ЕСТЬ
+        if (roleId === 'none') {
+            // Если выбрано "Без роли" — убираем все роли, кроме @everyone
+            const rolesToRemove = member.roles.cache.filter(r => r.id !== guildId);
+            await member.roles.remove(rolesToRemove);
+            return res.json({ success: true, message: 'Все роли убраны!' });
         }
 
-        res.json({ success: true, message: 'Роль успешно изменена!' });
+        const role = await guild.roles.fetch(roleId);
+        if (!role) {
+            return res.json({ success: false, error: 'Роль не найдена' });
+        }
+
+        // ПРОВЕРЯЕМ, ЕСТЬ ЛИ РОЛЬ
+        if (member.roles.cache.has(roleId)) {
+            // Если есть — убираем
+            await member.roles.remove(role);
+            return res.json({ success: true, message: `Роль "${role.name}" убрана!` });
+        } else {
+            // Если нет — добавляем
+            await member.roles.add(role);
+            return res.json({ success: true, message: `Роль "${role.name}" выдана!` });
+        }
+
     } catch (error) {
         console.error('Ошибка смены роли:', error);
         res.json({ success: false, error: 'Ошибка сервера: ' + error.message });
