@@ -3,6 +3,15 @@ const fs = require('fs');
 const path = require('path');
 const { createReadStream } = require('fs');
 
+// Указываем путь к ffmpeg
+const ffmpeg = require('ffmpeg-static');
+if (ffmpeg) {
+    process.env.FFMPEG_PATH = ffmpeg;
+    console.log('📦 FFmpeg path:', ffmpeg);
+} else {
+    console.warn('⚠️ FFmpeg не найден!');
+}
+
 const queue = new Map();
 
 module.exports = {
