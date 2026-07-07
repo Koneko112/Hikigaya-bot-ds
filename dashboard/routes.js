@@ -952,19 +952,37 @@ router.post('/api/admin/set-role', isAdmin, async (req, res) => {
         res.json({ success: false, error: 'Ошибка сервера: ' + error.message });
     }
 });
-// ============= ПОИСК ПОЛЬЗОВАТЕЛЕЙ =============
-router.get('/api/users/search', isAdmin, async (req, res) => {
+// ============= ПОИСК ПОЛЬЗОВАТЕЛЕЙ (с кешем) =============
+let usersCache = {
+    data: null,
+    timestamp: 0,
+    ttl: 60000 // 1 минута
+};
+
+router.get('/api/users/search', isAuthenticated, async (req, res) => {
     const query = req.query.q?.toLowerCase() || '';
+    
     try {
         const guildId = '1208677626961727528';
         const guild = global.discordClient.guilds.cache.get(guildId);
         if (!guild) return res.json({ users: [] });
         
-        await guild.members.fetch();
-        const members = guild.members.cache
-            .filter(m => m.user.username.toLowerCase().includes(query) || m.id.includes(query))
-            .map(m => ({ id: m.id, username: m.user.username, avatar: m.user.displayAvatarURL() }))
+        // Используем кеш, чтобы не дёргать Discord каждый раз
+        const now = Date.now();
+        if (!usersCache.data || (now - usersCache.timestamp) > usersCache.ttl) {
+            await guild.members.fetch();
+            usersCache.data = guild.members.cache.map(m => ({
+                id: m.id,
+                username: m.user.username,
+                avatar: m.user.displayAvatarURL()
+            }));
+            usersCache.timestamp = now;
+        }
+        
+        const members = usersCache.data
+            .filter(m => m.username.toLowerCase().includes(query) || m.id.includes(query))
             .slice(0, 20);
+        
         res.json({ users: members });
     } catch (error) {
         console.error('Ошибка поиска:', error);
