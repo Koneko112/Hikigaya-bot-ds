@@ -2,6 +2,9 @@ const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerSta
 const fs = require('fs');
 const path = require('path');
 
+// Принудительно подключаем opusscript
+require('opusscript');
+
 const queue = new Map();
 
 module.exports = {
@@ -35,7 +38,6 @@ module.exports = {
             targetTrack = tracks[tracks.length - 1];
         }
 
-        // Проверяем, существует ли файл
         if (!fs.existsSync(targetTrack.path)) {
             return message.reply(`❌ Файл "${targetTrack.originalName}" не найден на сервере. Загрузи его заново.`);
         }
@@ -45,10 +47,9 @@ module.exports = {
             path: targetTrack.path,
             requestedBy: message.author.tag
         };
-        // ===== ОТЛАДКА =====
-console.log('📂 Путь к файлу:', song.path);
-console.log('📂 Файл существует?', fs.existsSync(song.path));
-// ==================
+
+        console.log('📂 Путь к файлу:', song.path);
+        console.log('📂 Файл существует?', fs.existsSync(song.path));
 
         let serverQueue = queue.get(message.guildId);
 
@@ -89,7 +90,6 @@ async function playSong(guildId) {
     try {
         console.log(`🎵 Воспроизвожу: ${song.path}`);
 
-        // Создаём ресурс из файла
         const resource = createAudioResource(song.path, {
             inlineVolume: true
         });
