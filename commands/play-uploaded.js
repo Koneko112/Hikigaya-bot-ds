@@ -1,5 +1,5 @@
 const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus } = require('@discordjs/voice');
-const { createReadStream } = require('fs');
+const fs = require('fs');
 const path = require('path');
 
 const queue = new Map();
@@ -15,8 +15,8 @@ module.exports = {
 
         const userTracksFile = path.join(__dirname, '..', 'data', 'user-tracks.json');
         let data = {};
-        if (require('fs').existsSync(userTracksFile)) {
-            data = JSON.parse(require('fs').readFileSync(userTracksFile, 'utf8'));
+        if (fs.existsSync(userTracksFile)) {
+            data = JSON.parse(fs.readFileSync(userTracksFile, 'utf8'));
         }
         const tracks = data[message.author.id] || [];
 
@@ -33,6 +33,11 @@ module.exports = {
             }
         } else {
             targetTrack = tracks[tracks.length - 1];
+        }
+
+        // Проверяем, существует ли файл
+        if (!fs.existsSync(targetTrack.path)) {
+            return message.reply(`❌ Файл "${targetTrack.originalName}" не найден на сервере. Загрузи его заново.`);
         }
 
         const song = {
@@ -78,14 +83,17 @@ async function playSong(guildId) {
     const song = serverQueue.songs[0];
 
     try {
-        // Используем createReadStream вместо прямого пути
-        const resource = createAudioResource(require('fs').createReadStream(song.path), {
-            inputType: 'file'
+        console.log(`🎵 Воспроизвожу: ${song.path}`);
+
+        // Создаём ресурс из файла
+        const resource = createAudioResource(song.path, {
+            inlineVolume: true
         });
 
         serverQueue.player.play(resource);
 
         serverQueue.player.on(AudioPlayerStatus.Idle, () => {
+            console.log('⏭ Трек закончился, переключаем...');
             serverQueue.songs.shift();
             playSong(guildId);
         });
