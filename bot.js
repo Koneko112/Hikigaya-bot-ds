@@ -11,6 +11,7 @@ const ffmpeg = require('ffmpeg-static');
 process.env.FFMPEG_PATH = ffmpeg;
 console.log('📦 FFmpeg path:', ffmpeg);
 console.log('✅ Плеер инициализирован');
+
 // ====== ИНИЦИАЛИЗАЦИЯ БОТА ======
 const client = new Client({
     intents: [
@@ -108,9 +109,46 @@ app.listen(PORT, '0.0.0.0', () => {
     console.log(`📱 Доступно для друзей → http://${getLocalIP()}:${PORT}`);
 });
 
+// ===== АВТОМАТИЧЕСКОЕ СНЯТИЕ ПЛАТНЫХ РОЛЕЙ =====
+const paidRolesFile = path.join(__dirname, 'data', 'paid-roles.json');
+
+// Запускаем проверку раз в минуту
+setInterval(() => {
+    if (!fs.existsSync(paidRolesFile)) return;
+
+    try {
+        const data = JSON.parse(fs.readFileSync(paidRolesFile, 'utf8'));
+        const now = new Date();
+
+        for (const [userId, purchase] of Object.entries(data.purchases || {})) {
+            if (new Date(purchase.expiresAt) < now) {
+                // Снимаем роль
+                const guild = client.guilds.cache.get('1208677626961727528');
+                if (guild) {
+                    const member = guild.members.cache.get(userId);
+                    if (member) {
+                        const role = guild.roles.cache.get(purchase.roleId);
+                        if (role) {
+                            member.roles.remove(role);
+                            // Удаляем роль с сервера
+                            role.delete();
+                            console.log(`🔴 Снята и удалена роль у ${member.user.tag}`);
+                        }
+                    }
+                }
+                delete data.purchases[userId];
+                fs.writeFileSync(paidRolesFile, JSON.stringify(data, null, 2));
+            }
+        }
+    } catch (error) {
+        console.error('❌ Ошибка проверки ролей:', error);
+    }
+}, 60000); // 1 минута
+
 // А бота подключаем отдельно
 client.login(process.env.TOKEN);
 console.log('📡 Отправлен запрос на вход в Discord...');
+
 client.once('clientReady', () => {
     console.log(`✅ Бот запущен как ${client.user.tag}`);
     console.log(`📊 Серверов: ${client.guilds.cache.size}`);
