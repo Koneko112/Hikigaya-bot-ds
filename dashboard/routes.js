@@ -1130,4 +1130,13 @@ router.get('/admin/give-role', isAdmin, (req, res) => {
         plans: data.plans 
     });
 });
+// ====== ПОЛУЧИТЬ КОНТАКТЫ АДМИНОВ ======
+router.get('/api/admins', isAuthenticated, (req, res) => {
+    const adminsFile = path.join(__dirname, '..', 'data', 'admins.json');
+    let admins = [];
+    if (fs.existsSync(adminsFile)) {
+        admins = JSON.parse(fs.readFileSync(adminsFile, 'utf8')).admins || [];
+    }
+    res.json({ admins });
+});
 module.exports = router;
