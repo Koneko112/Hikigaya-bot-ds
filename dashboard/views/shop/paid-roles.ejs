@@ -184,7 +184,7 @@
                         <div class="duration">⏳ Срок: <%= plan.duration %> дней</div>
                         <p style="color: #8888aa; font-size: 0.85rem; margin-bottom: 16px;"><%= plan.description || '' %></p>
                         <button class="btn-buy" onclick="buyRole('<%= plan.id %>', '<%= plan.name %>')" <%= (userPlan && userPlan.id === plan.id) ? 'disabled' : '' %>>
-                            <%= (userPlan && userPlan.id === plan.id) ? '✅ Уже есть' : '💳 Купить' %>
+                            <%= (userPlan && userPlan.id === plan.id) ? '✅ Уже есть' : '💳 Связаться с админом' %>
                         </button>
                     </div>
                 <% }); %>
