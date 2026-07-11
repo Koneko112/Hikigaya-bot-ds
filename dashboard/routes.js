@@ -1198,4 +1198,38 @@ router.get('/admin/role-purchases', isAdmin, (req, res) => {
         totalExpired: totalExpired
     });
 });
+// ====== УДАЛЕНИЕ ПОКУПКИ РОЛИ (ДЛЯ АДМИНОВ) ======
+router.post('/api/admin/remove-role-purchase', isAdmin, async (req, res) => {
+    try {
+        const { userId } = req.body;
+        const paidRolesFile = path.join(__dirname, '..', 'data', 'paid-roles.json');
+        let data = JSON.parse(fs.readFileSync(paidRolesFile, 'utf8'));
+
+        if (!data.purchases[userId]) {
+            return res.status(404).send('Покупка не найдена');
+        }
+
+        // Удаляем роль с сервера
+        const guildId = '1208677626961727528';
+        const guild = global.discordClient.guilds.cache.get(guildId);
+        if (guild) {
+            const member = await guild.members.fetch(userId).catch(() => null);
+            if (member) {
+                const role = guild.roles.cache.get(data.purchases[userId].roleId);
+                if (role) {
+                    await member.roles.remove(role);
+                    await role.delete();
+                }
+            }
+        }
+
+        delete data.purchases[userId];
+        fs.writeFileSync(paidRolesFile, JSON.stringify(data, null, 2));
+
+        res.redirect('/admin/role-purchases');
+    } catch (error) {
+        console.error('Ошибка удаления покупки:', error);
+        res.status(500).send('Ошибка удаления покупки');
+    }
+});
 module.exports = router;
