@@ -1118,4 +1118,16 @@ router.post('/api/shop/buy-role-plan', isAdmin, async (req, res) => {
         res.json({ success: false, error: 'Ошибка сервера: ' + error.message });
     }
 });
+// ====== СТРАНИЦА ВЫДАЧИ РОЛИ (ДЛЯ АДМИНОВ) ======
+router.get('/admin/give-role', isAdmin, (req, res) => {
+    const paidRolesFile = path.join(__dirname, '..', 'data', 'paid-roles.json');
+    let data = { plans: [], purchases: {} };
+    if (fs.existsSync(paidRolesFile)) {
+        data = JSON.parse(fs.readFileSync(paidRolesFile, 'utf8'));
+    }
+    res.render('admin/give-role', { 
+        user: req.user, 
+        plans: data.plans 
+    });
+});
 module.exports = router;
