@@ -183,7 +183,7 @@
                         </div>
                         <div class="duration">⏳ Срок: <%= plan.duration %> дней</div>
                         <p style="color: #8888aa; font-size: 0.85rem; margin-bottom: 16px;"><%= plan.description || '' %></p>
-                        <button class="btn-buy" onclick="buyRole('<%= plan.id %>', '<%= plan.name %>')" <%= (userPlan && userPlan.id === plan.id) ? 'disabled' : '' %>>
+                        <button class="btn-buy" onclick="contactAdmin('<%= plan.name %>', <%= plan.price %>)" <%= (userPlan && userPlan.id === plan.id) ? 'disabled' : '' %>>
                             <%= (userPlan && userPlan.id === plan.id) ? '✅ Уже есть' : '💳 Связаться с админом' %>
                         </button>
                     </div>
@@ -194,35 +194,44 @@
         <% } %>
 
         <div class="info-box">
-            <p>💳 Оплата производится через администратора. После оплаты напишите <strong>администратору</strong> или используйте команду <strong>!buy-role</strong>.</p>
+            <p>💳 Оплата производится через администратора. Нажмите <strong>"Связаться с админом"</strong>, чтобы увидеть контакты.</p>
         </div>
     </div>
 
     <script>
-        function buyRole(planId, planName) {
-            if (!confirm('Подтвердите покупку роли "' + planName + '"?')) return;
+        function contactAdmin(planName, price) {
+            // Показываем окно загрузки
+            alert('⏳ Загрузка контактов администраторов...');
 
-            fetch('/api/shop/buy-role-plan', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ planId: planId })
-            })
-            .then(function(res) {
-                return res.json();
-            })
-            .then(function(data) {
-                if (data.success) {
-                    alert('✅ Роль "' + planName + '" куплена!');
-                    location.reload();
-                } else {
-                    alert('❌ ' + data.error);
-                }
-            })
-            .catch(function() {
-                alert('❌ Ошибка соединения. Свяжитесь с администратором.');
-            });
+            // Загружаем контакты админов
+            fetch('/api/admins')
+                .then(function(res) {
+                    return res.json();
+                })
+                .then(function(data) {
+                    if (!data.admins || data.admins.length === 0) {
+                        alert('❌ Контакты администраторов не найдены. Обратитесь к @Kadokawa');
+                        return;
+                    }
+
+                    // Формируем сообщение с контактами
+                    var message = '💳 **Для покупки роли "' + planName + '" за ' + price + ' ₽, свяжитесь с одним из администраторов:**\n\n';
+                    
+                    data.admins.forEach(function(admin, index) {
+                        message += '👤 **' + admin.username + '**\n';
+                        if (admin.discordTag) message += '   Discord: ' + admin.discordTag + '\n';
+                        if (admin.telegram) message += '   Telegram: ' + admin.telegram + '\n';
+                        if (admin.vk) message += '   VK: ' + admin.vk + '\n';
+                        message += '\n';
+                    });
+
+                    message += '\n📌 После оплаты администратор выдаст вам роль вручную.';
+
+                    alert(message);
+                })
+                .catch(function() {
+                    alert('❌ Не удалось загрузить контакты администраторов. Обратитесь к @Kadokawa');
+                });
         }
     </script>
 </body>
