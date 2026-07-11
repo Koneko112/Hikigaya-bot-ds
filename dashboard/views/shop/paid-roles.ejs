@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>💎 Платные роли</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        .roles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-top: 24px;
+        }
+        .role-card {
+            background: #131325;
+            border-radius: 16px;
+            border: 2px solid #2a2a50;
+            padding: 24px;
+            text-align: center;
+            transition: 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .role-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+        }
+        .role-card .badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(253, 203, 110, 0.15);
+            color: #fdcb6e;
+            padding: 2px 12px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        .role-card .price {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #fdcb6e;
+        }
+        .role-card .price span {
+            font-size: 1rem;
+            color: #8888aa;
+        }
+        .role-card .permissions {
+            color: #8888aa;
+            font-size: 0.85rem;
+            margin: 12px 0;
+        }
+        .role-card .permissions span {
+            display: inline-block;
+            background: rgba(124, 92, 252, 0.1);
+            color: #7c5cfc;
+            padding: 2px 10px;
+            border-radius: 12px;
+            margin: 2px;
+            font-size: 0.75rem;
+        }
+        .role-card .duration {
+            color: #8888aa;
+            font-size: 0.9rem;
+            margin-bottom: 16px;
+        }
+        .btn-buy {
+            background: #7c5cfc;
+            color: #fff;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            width: 100%;
+        }
+        .btn-buy:hover {
+            background: #9b7cff;
+            transform: scale(1.02);
+        }
+        .btn-buy:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .user-role-card {
+            background: #131325;
+            border-radius: 16px;
+            border: 2px solid #00b894;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .user-role-card .role-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #00b894;
+        }
+        .user-role-card .role-expires {
+            color: #8888aa;
+            font-size: 0.9rem;
+        }
+        .expired {
+            border-color: #ff6b6b;
+        }
+        .expired .role-name {
+            color: #ff6b6b;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px 0;
+            color: #8888aa;
+        }
+        .info-box {
+            text-align: center;
+            margin-top: 24px;
+            padding: 16px;
+            background: #131325;
+            border-radius: 12px;
+            border: 1px solid #2a2a50;
+        }
+        .info-box p {
+            color: #8888aa;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+        .info-box strong {
+            color: #7c5cfc;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">🤖 BotPanel</a>
+            <div class="nav-menu">
+                <a href="/dashboard">📊 Панель</a>
+                <a href="/profile">👤 Профиль</a>
+                <a href="/shop">🛒 Магазин</a>
+                <a href="/youtube">📺 YouTube</a>
+                <a href="/shop/paid-roles" style="color: #fdcb6e;">💎 Роли</a>
+                <a href="/logout" style="color: #ff6b6b;">🚪 Выйти</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>💎 Платные роли</h1>
+        <p style="color: #8888aa; margin-bottom: 8px;">Поддержи проект и получи особые права на сервере!</p>
+
+        <!-- МОЯ РОЛЬ -->
+        <% if (userPlan) { %>
+            <div class="user-role-card">
+                <div class="role-name">🎯 Твоя роль: <%= userPlan.name %></div>
+                <div class="role-expires">⏳ Истекает: <%= new Date(userPurchase.expiresAt).toLocaleDateString('ru-RU') %></div>
+                <div style="margin-top: 8px; color: #8888aa; font-size: 0.85rem;">
+                    Права: <%= userPlan.permissions ? userPlan.permissions.join(', ') : 'Нет' %>
+                </div>
+            </div>
+        <% } else if (userPurchase) { %>
+            <div class="user-role-card expired">
+                <div class="role-name">⏰ Роль истекла</div>
+                <div class="role-expires">Купи её снова, чтобы продолжить пользоваться!</div>
+            </div>
+        <% } %>
+
+        <!-- СПИСОК РОЛЕЙ -->
+        <% if (plans && plans.length > 0) { %>
+            <div class="roles-grid">
+                <% plans.forEach(function(plan) { %>
+                    <div class="role-card" style="border-color: <%= plan.color || '#2a2a50' %>;">
+                        <div class="badge"><%= plan.duration %> дней</div>
+                        <h3 style="color: <%= plan.color || '#fff' %>;">💎 <%= plan.name %></h3>
+                        <div class="price"><%= plan.price %> <span>₽</span></div>
+                        <div class="permissions">
+                            <% if (plan.permissions && plan.permissions.length > 0) { %>
+                                <% plan.permissions.forEach(function(p) { %>
+                                    <span><%= p %></span>
+                                <% }); %>
+                            <% } else { %>
+                                <span style="color: #555;">Нет специальных прав</span>
+                            <% } %>
+                        </div>
+                        <div class="duration">⏳ Срок: <%= plan.duration %> дней</div>
+                        <p style="color: #8888aa; font-size: 0.85rem; margin-bottom: 16px;"><%= plan.description || '' %></p>
+                        <button class="btn-buy" onclick="buyRole('<%= plan.id %>', '<%= plan.name %>')" <%= (userPlan && userPlan.id === plan.id) ? 'disabled' : '' %>>
+                            <%= (userPlan && userPlan.id === plan.id) ? '✅ Уже есть' : '💳 Купить' %>
+                        </button>
+                    </div>
+                <% }); %>
+            </div>
+        <% } else { %>
+            <div class="empty-state">📭 Пока нет доступных ролей</div>
+        <% } %>
+
+        <div class="info-box">
+            <p>💳 Оплата производится через администратора. После оплаты напишите <strong>администратору</strong> или используйте команду <strong>!buy-role</strong>.</p>
+        </div>
+    </div>
+
+    <script>
+        function buyRole(planId, planName) {
+            if (!confirm('Подтвердите покупку роли "' + planName + '"?')) return;
+
+            fetch('/api/shop/buy-role-plan', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ planId: planId })
+            })
+            .then(function(res) {
+                return res.json();
+            })
+            .then(function(data) {
+                if (data.success) {
+                    alert('✅ Роль "' + planName + '" куплена!');
+                    location.reload();
+                } else {
+                    alert('❌ ' + data.error);
+                }
+            })
+            .catch(function() {
+                alert('❌ Ошибка соединения. Свяжитесь с администратором.');
+            });
+        }
+    </script>
+</body>
+</html>
