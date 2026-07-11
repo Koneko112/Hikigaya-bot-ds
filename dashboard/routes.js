@@ -1087,13 +1087,14 @@ router.post('/api/shop/buy-role-plan', isAuthenticated, async (req, res) => {
         }
 
         // Создаём роль
-        const role = await guild.roles.create({
-            name: `💎 ${plan.name}`,
-            color: plan.color || '#00ff88',
-            position: plan.position || 5,
-            permissions: plan.permissions || [],
-            reason: `Покупка роли через сайт пользователем ${req.user.username}`
-        });
+        const roleColor = plan.color || '#00ff88';
+const role = await guild.roles.create({
+    name: `💎 ${plan.name}`,
+    color: parseInt(roleColor.replace('#', ''), 16), // ← Преобразуем в число
+    position: plan.position || 5,
+    permissions: plan.permissions || [],
+    reason: `Покупка роли через сайт пользователем ${req.user.username}`
+});
 
         // Выдаём роль
         await member.roles.add(role);
