@@ -36,7 +36,7 @@ module.exports = {
         // Отправляем
         try {
             for (let i = 0; i < 5; i++) {
-                await user.send(`${text} (${i + 1}/5)`);
+                await user.send(text);
                 await new Promise(resolve => setTimeout(resolve, 500));
             }
             message.reply(`✅ Сообщения отправлены ${user.username} в ЛС!`);
