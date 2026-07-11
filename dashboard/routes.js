@@ -1152,4 +1152,50 @@ router.get('/api/admins', isAuthenticated, (req, res) => {
     }
     res.json({ admins });
 });
+// ====== СПИСОК ПОКУПОК РОЛЕЙ (ДЛЯ АДМИНОВ) ======
+router.get('/admin/role-purchases', isAdmin, (req, res) => {
+    const paidRolesFile = path.join(__dirname, '..', 'data', 'paid-roles.json');
+    let data = { plans: [], purchases: {} };
+    if (fs.existsSync(paidRolesFile)) {
+        data = JSON.parse(fs.readFileSync(paidRolesFile, 'utf8'));
+    }
+
+    const purchases = [];
+    for (const [userId, purchase] of Object.entries(data.purchases)) {
+        const plan = data.plans.find(p => p.id === purchase.planId);
+        if (plan) {
+            const now = new Date();
+            const expiresAt = new Date(purchase.expiresAt);
+            const daysLeft = Math.ceil((expiresAt - now) / (1000 * 60 * 60 * 24));
+            
+            purchases.push({
+                userId: userId,
+                roleName: plan.name,
+                roleId: purchase.roleId,
+                expiresAt: purchase.expiresAt,
+                issuedBy: purchase.issuedBy || 'Неизвестно',
+                issuedAt: purchase.issuedAt || null,
+                isActive: expiresAt > now,
+                daysLeft: daysLeft > 0 ? daysLeft : 0,
+                duration: plan.duration
+            });
+        }
+    }
+
+    purchases.sort((a, b) => {
+        if (a.isActive && !b.isActive) return -1;
+        if (!a.isActive && b.isActive) return 1;
+        return 0;
+    });
+
+    const totalActive = purchases.filter(p => p.isActive).length;
+    const totalExpired = purchases.filter(p => !p.isActive).length;
+
+    res.render('admin/role-purchases', {
+        user: req.user,
+        purchases: purchases,
+        totalActive: totalActive,
+        totalExpired: totalExpired
+    });
+});
 module.exports = router;
