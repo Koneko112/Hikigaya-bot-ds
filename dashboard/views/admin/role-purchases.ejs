@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Покупки ролей</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+        .stats-card {
+            background: #131325;
+            border-radius: 12px;
+            border: 1px solid #2a2a50;
+            padding: 16px;
+            text-align: center;
+        }
+        .stats-card .number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #7c5cfc;
+        }
+        .stats-card .label {
+            color: #8888aa;
+            font-size: 0.8rem;
+        }
+        .stats-card .number.active {
+            color: #00b894;
+        }
+        .stats-card .number.expired {
+            color: #ff6b6b;
+        }
+        .purchase-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid #2a2a50;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .purchase-item:hover {
+            background: rgba(124, 92, 252, 0.05);
+        }
+        .purchase-item .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .purchase-item .user-id {
+            color: #8888aa;
+            font-size: 0.75rem;
+            font-family: monospace;
+        }
+        .purchase-item .role-name {
+            font-weight: 600;
+            color: #7c5cfc;
+        }
+        .purchase-item .status {
+            padding: 2px 12px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        .purchase-item .status.active {
+            background: rgba(0, 184, 148, 0.15);
+            color: #00b894;
+        }
+        .purchase-item .status.expired {
+            background: rgba(255, 107, 107, 0.15);
+            color: #ff6b6b;
+        }
+        .purchase-item .expires {
+            color: #8888aa;
+            font-size: 0.75rem;
+        }
+        .purchase-item .issued-by {
+            color: #555;
+            font-size: 0.7rem;
+        }
+        .purchase-item .duration-badge {
+            display: inline-block;
+            background: rgba(124, 92, 252, 0.1);
+            color: #7c5cfc;
+            padding: 1px 10px;
+            border-radius: 12px;
+            font-size: 0.65rem;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px 0;
+            color: #8888aa;
+        }
+        .btn-remove {
+            background: #e74c3c;
+            color: #fff;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.7rem;
+        }
+        .btn-remove:hover {
+            background: #c0392b;
+        }
+        .table-wrap {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        th {
+            text-align: left;
+            padding: 10px 12px;
+            color: #8888aa;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            border-bottom: 1px solid #2a2a50;
+        }
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #2a2a50;
+        }
+        .highlight {
+            background: rgba(124, 92, 252, 0.05);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">🤖 BotPanel</a>
+            <div class="nav-menu">
+                <a href="/dashboard">📊 Панель</a>
+                <a href="/profile">👤 Профиль</a>
+                <a href="/shop">🛒 Магазин</a>
+                <a href="/youtube">📺 YouTube</a>
+                <a href="/admin" style="color: #fdcb6e;">⚙️ Админ</a>
+                <a href="/logout" style="color: #ff6b6b;">🚪 Выйти</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <div>
+                <h1>📊 Покупки ролей</h1>
+                <p style="color: #8888aa;">История всех выданных платных ролей</p>
+            </div>
+            <a href="/admin" style="color: #8888aa;">← Назад</a>
+        </div>
+
+        <div class="stats-row">
+            <div class="stats-card">
+                <div class="number"><%= purchases.length %></div>
+                <div class="label">📦 Всего выдач</div>
+            </div>
+            <div class="stats-card">
+                <div class="number active"><%= totalActive %></div>
+                <div class="label">✅ Активных</div>
+            </div>
+            <div class="stats-card">
+                <div class="number expired"><%= totalExpired %></div>
+                <div class="label">⏰ Истекших</div>
+            </div>
+        </div>
+
+        <% if (purchases.length === 0) { %>
+            <div class="empty-state">📭 Нет выданных ролей</div>
+        <% } else { %>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Пользователь</th>
+                            <th>Роль</th>
+                            <th>Срок</th>
+                            <th>Выдал</th>
+                            <th>Статус</th>
+                            <th>Действие</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% purchases.forEach(function(p) { %>
+                            <tr class="<%= p.isActive ? '' : 'highlight' %>">
+                                <td>
+                                    <span style="font-weight: 500;"><%= p.userId %></span>
+                                    <span style="color: #555; font-size: 0.65rem; display: block;"><%= p.userId %></span>
+                                </td>
+                                <td>
+                                    <span class="role-name">💎 <%= p.roleName %></span>
+                                    <span class="duration-badge"><%= p.duration %> дн.</span>
+                                </td>
+                                <td>
+                                    <span class="expires"><%= new Date(p.expiresAt).toLocaleDateString('ru-RU') %></span>
+                                    <span style="color: #555; font-size: 0.65rem; display: block;">
+                                        <%- p.isActive ? 'Осталось ' + p.daysLeft + ' дн.' : 'Истекла' %>
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="issued-by"><%= p.issuedBy || 'Неизвестно' %></span>
+                                    <span style="color: #555; font-size: 0.6rem; display: block;">
+                                        <%= p.issuedAt ? new Date(p.issuedAt).toLocaleDateString('ru-RU') : '' %>
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="status <%= p.isActive ? 'active' : 'expired' %>">
+                                        <%= p.isActive ? '✅ Активна' : '⏰ Истекла' %>
+                                    </span>
+                                </td>
+                                <td>
+                                    <form method="POST" action="/api/admin/remove-role-purchase" style="display: inline;">
+                                        <input type="hidden" name="userId" value="<%= p.userId %>">
+                                        <button type="submit" class="btn-remove" onclick="return confirm('Удалить покупку роли у пользователя?')">🗑</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+        <% } %>
+    </div>
+</body>
+</html>
