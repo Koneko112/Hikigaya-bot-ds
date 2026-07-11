@@ -1055,11 +1055,15 @@ router.get('/shop/paid-roles', isAuthenticated, (req, res) => {
 // ====== ПОКУПКА РОЛИ (ТОЛЬКО ДЛЯ АДМИНОВ) ======
 router.post('/api/shop/buy-role-plan', isAdmin, async (req, res) => {
     try {
-        const { planId, userId } = req.body; // теперь нужно указывать userId
+        const { planId, userId } = req.body;
         const guildId = '1208677626961727528';
 
         if (!userId) {
             return res.json({ success: false, error: 'Укажите ID пользователя' });
+        }
+
+        if (!planId) {
+            return res.json({ success: false, error: 'Укажите ID плана' });
         }
 
         const paidRolesFile = path.join(__dirname, '..', 'data', 'paid-roles.json');
@@ -1077,15 +1081,18 @@ router.post('/api/shop/buy-role-plan', isAdmin, async (req, res) => {
 
         const member = await guild.members.fetch(userId);
         if (!member) {
-            return res.json({ success: false, error: 'Пользователь не найден' });
+            return res.json({ success: false, error: 'Пользователь не найден на сервере' });
         }
 
-        // Проверяем, есть ли уже роль
+        // Проверяем, есть ли уже активная роль
         const existing = data.purchases[userId];
         if (existing) {
             const existingPlan = data.plans.find(p => p.id === existing.planId);
             if (existingPlan && new Date(existing.expiresAt) > new Date()) {
-                return res.json({ success: false, error: `У пользователя уже есть активная роль "${existingPlan.name}"` });
+                return res.json({ 
+                    success: false, 
+                    error: `У пользователя уже есть активная роль "${existingPlan.name}" до ${new Date(existing.expiresAt).toLocaleDateString('ru-RU')}` 
+                });
             }
         }
 
@@ -1096,7 +1103,7 @@ router.post('/api/shop/buy-role-plan', isAdmin, async (req, res) => {
             color: parseInt(roleColor.replace('#', ''), 16),
             position: plan.position || 5,
             permissions: plan.permissions || [],
-            reason: `Покупка роли админом для пользователя ${member.user.tag}`
+            reason: `Выдача роли админом ${req.user.username} для ${member.user.tag}`
         });
 
         await member.roles.add(role);
@@ -1104,14 +1111,20 @@ router.post('/api/shop/buy-role-plan', isAdmin, async (req, res) => {
         const expiresAt = new Date();
         expiresAt.setDate(expiresAt.getDate() + plan.duration);
 
+        // Сохраняем с информацией о том, кто выдал
         data.purchases[userId] = {
             planId: plan.id,
             roleId: role.id,
-            expiresAt: expiresAt.toISOString()
+            expiresAt: expiresAt.toISOString(),
+            issuedBy: req.user.id,
+            issuedAt: new Date().toISOString()
         };
         fs.writeFileSync(paidRolesFile, JSON.stringify(data, null, 2));
 
-        res.json({ success: true, message: `Роль "${plan.name}" выдана пользователю ${member.user.username} на ${plan.duration} дней!` });
+        res.json({ 
+            success: true, 
+            message: `Роль "${plan.name}" выдана пользователю ${member.user.username} на ${plan.duration} дней!` 
+        });
 
     } catch (error) {
         console.error('Ошибка выдачи роли:', error);
