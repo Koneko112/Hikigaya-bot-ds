@@ -1,0 +1,16 @@
+{
+    "admins": [
+        {
+            "id": "629216255873908736",
+            "username": "Kadokawa",
+            "discordTag": "@Kadokawaa",
+            "telegram": "@kadokawaa",
+        },
+        {
+            "id": "1091889146265604117",
+            "username": "Endy",
+            "discordTag": "@Endymoon1",
+            "telegram": "@Endymoon1",
+        }
+    ]
+}
