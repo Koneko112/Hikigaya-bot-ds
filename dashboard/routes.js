@@ -1096,22 +1096,27 @@ router.post('/api/shop/buy-role-plan', isAdmin, async (req, res) => {
             }
         }
 
-        // Создаём роль
-        const roleColor = plan.color || '#00ff88';
-        const role = await guild.roles.create({
-            name: `💎 ${plan.name}`,
-            color: parseInt(roleColor.replace('#', ''), 16),
-            position: plan.position || 5,
-            permissions: plan.permissions || [],
-            reason: `Выдача роли админом ${req.user.username} для ${member.user.tag}`
-        });
+        // ===== ИЩЕМ СУЩЕСТВУЮЩУЮ РОЛЬ =====
+        let role = guild.roles.cache.find(r => r.name === `💎 ${plan.name}`);
 
+        // Если роль не найдена — создаём
+        if (!role) {
+            const roleColor = plan.color || '#00ff88';
+            role = await guild.roles.create({
+                name: `💎 ${plan.name}`,
+                color: parseInt(roleColor.replace('#', ''), 16),
+                position: plan.position || 5,
+                permissions: plan.permissions || [],
+                reason: `Создание роли для плана ${plan.name}`
+            });
+        }
+
+        // Выдаём роль
         await member.roles.add(role);
 
         const expiresAt = new Date();
         expiresAt.setDate(expiresAt.getDate() + plan.duration);
 
-        // Сохраняем с информацией о том, кто выдал
         data.purchases[userId] = {
             planId: plan.id,
             roleId: role.id,
