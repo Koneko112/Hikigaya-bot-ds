@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Выдать роль</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            color: #8888aa;
+            margin-bottom: 4px;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px 14px;
+            background: #0b0b14;
+            border: 1px solid #2a2a50;
+            border-radius: 8px;
+            color: #eee;
+            font-size: 1rem;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #7c5cfc;
+        }
+        .btn-submit {
+            background: #7c5cfc;
+            color: #fff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1rem;
+            transition: 0.3s;
+        }
+        .btn-submit:hover {
+            background: #9b7cff;
+        }
+        .result-msg {
+            margin-top: 12px;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .result-msg.success {
+            background: rgba(0, 184, 148, 0.1);
+            color: #00b894;
+            border: 1px solid rgba(0, 184, 148, 0.2);
+        }
+        .result-msg.error {
+            background: rgba(231, 76, 60, 0.1);
+            color: #ff6b6b;
+            border: 1px solid rgba(231, 76, 60, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">🤖 BotPanel</a>
+            <div class="nav-menu">
+                <a href="/dashboard">📊 Панель</a>
+                <a href="/profile">👤 Профиль</a>
+                <a href="/shop">🛒 Магазин</a>
+                <a href="/youtube">📺 YouTube</a>
+                <a href="/admin" style="color: #fdcb6e;">⚙️ Админ</a>
+                <a href="/logout" style="color: #ff6b6b;">🚪 Выйти</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>🎯 Выдать платную роль</h1>
+        <p><a href="/admin" style="color: #8888aa;">← Назад</a></p>
+
+        <div class="card">
+            <form id="giveRoleForm">
+                <div class="form-group">
+                    <label>ID пользователя в Discord</label>
+                    <input type="text" id="userId" placeholder="Например: 123456789012345678" required>
+                    <small style="color: #555;">Включите режим разработчика в Discord → ПКМ по пользователю → Копировать ID</small>
+                </div>
+
+                <div class="form-group">
+                    <label>Выберите роль</label>
+                    <select id="planId">
+                        <% if (plans && plans.length > 0) { %>
+                            <% plans.forEach(plan => { %>
+                                <option value="<%= plan.id %>">
+                                    <%= plan.name %> — <%= plan.price %> ₽ (<%= plan.duration %> дней)
+                                </option>
+                            <% }); %>
+                        <% } else { %>
+                            <option value="">Нет доступных ролей</option>
+                        <% } %>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-submit">🎯 Выдать роль</button>
+            </form>
+
+            <div id="result" class="result-msg" style="display: none;"></div>
+        </div>
+
+        <div class="card" style="margin-top: 20px;">
+            <h4>📋 Доступные роли</h4>
+            <% if (plans && plans.length > 0) { %>
+                <ul style="color: #8888aa; padding-left: 20px;">
+                    <% plans.forEach(plan => { %>
+                        <li>
+                            <strong style="color: <%= plan.color || '#fff' %>;">💎 <%= plan.name %></strong>
+                            — <%= plan.price %> ₽, <%= plan.duration %> дней
+                            <span style="color: #555; font-size: 0.85rem;">(<%= plan.permissions ? plan.permissions.join(', ') : 'Нет прав' %>)</span>
+                        </li>
+                    <% }); %>
+                </ul>
+            <% } else { %>
+                <p style="color: #8888aa;">Нет доступных ролей. Добавьте их в <code>data/paid-roles.json</code></p>
+            <% } %>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('giveRoleForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const result = document.getElementById('result');
+            const userId = document.getElementById('userId').value.trim();
+            const planId = document.getElementById('planId').value;
+
+            if (!userId) {
+                result.style.display = 'block';
+                result.className = 'result-msg error';
+                result.textContent = '❌ Введите ID пользователя';
+                return;
+            }
+
+            if (!planId) {
+                result.style.display = 'block';
+                result.className = 'result-msg error';
+                result.textContent = '❌ Нет доступных ролей';
+                return;
+            }
+
+            result.style.display = 'block';
+            result.className = 'result-msg';
+            result.textContent = '⏳ Выдача роли...';
+
+            try {
+                const response = await fetch('/api/shop/buy-role-plan', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ userId, planId })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    result.className = 'result-msg success';
+                    result.textContent = '✅ ' + data.message;
+                    document.getElementById('userId').value = '';
+                } else {
+                    result.className = 'result-msg error';
+                    result.textContent = '❌ ' + data.error;
+                }
+            } catch (error) {
+                result.className = 'result-msg error';
+                result.textContent = '❌ Ошибка соединения: ' + error.message;
+            }
+        });
+    </script>
+</body>
+</html>
