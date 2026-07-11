@@ -1,0 +1,35 @@
+{
+    "plans": [
+        {
+            "id": "sponsor",
+            "name": "Sponsor",
+            "price": 100,
+            "currency": "RUB",
+            "duration": 30,
+            "durationUnit": "days",
+            "color": "#00ff88",
+            "position": 5,
+            "permissions": ["MuteMembers", "MoveMembers"],
+            "description": "Может мутить и перемещать участников"
+        },
+        {
+            "id": "elite",
+            "name": "Elite",
+            "price": 400,
+            "currency": "RUB",
+            "duration": 90,
+            "durationUnit": "days",
+            "color": "#ff6b6b",
+            "position": 10,
+            "permissions": ["BanMembers", "KickMembers", "MuteMembers", "MoveMembers"],
+            "description": "Полный доступ к модерации"
+        }
+    ],
+    "purchases": {
+        "USER_ID_1": {
+            "planId": "sponsor",
+            "roleId": "1234567890",
+            "expiresAt": "2026-08-12T12:00:00.000Z"
+        }
+    }
+}
