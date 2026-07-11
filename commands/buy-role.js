@@ -15,6 +15,12 @@ function savePaidRoles(data) {
     fs.writeFileSync(paidRolesFile, JSON.stringify(data, null, 2));
 }
 
+// Функция для преобразования HEX в число
+function hexToInt(hex) {
+    if (!hex) return 0x00ff88;
+    return parseInt(hex.replace('#', ''), 16);
+}
+
 module.exports = {
     name: 'buy-role',
     description: '💎 Купить роль на сервере',
@@ -37,15 +43,16 @@ module.exports = {
         const existingPurchase = data.purchases[message.author.id];
         if (existingPurchase) {
             const existingPlan = data.plans.find(p => p.id === existingPurchase.planId);
-            if (existingPlan) {
+            if (existingPlan && new Date(existingPurchase.expiresAt) > new Date()) {
                 return message.reply(`❌ У тебя уже есть роль "${existingPlan.name}"! Она истекает ${new Date(existingPurchase.expiresAt).toLocaleDateString()}`);
             }
         }
 
         // Создаём роль
+        const roleColor = plan.color || '#00ff88';
         const role = await guild.roles.create({
             name: `💎 ${plan.name}`,
-            color: plan.color || '#00ff88',
+            color: hexToInt(roleColor),
             position: plan.position || 5,
             permissions: plan.permissions || [],
             reason: `Покупка роли пользователем ${message.author.tag}`
@@ -65,11 +72,11 @@ module.exports = {
         };
         savePaidRoles(data);
 
-        // Уведомление
+        // Уведомление (цвет в числовом формате)
         const embed = {
             title: '💎 Роль куплена!',
             description: `Ты получил роль **${role.name}** на **${plan.duration}** дней!`,
-            color: plan.color || '#00ff88',
+            color: hexToInt(roleColor),
             fields: [
                 { name: '📋 Права', value: plan.permissions.join(', ') || 'Нет специальных прав', inline: true },
                 { name: '⏳ Истекает', value: expiresAt.toLocaleDateString(), inline: true }
