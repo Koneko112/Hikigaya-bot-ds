@@ -1052,12 +1052,15 @@ router.get('/shop/paid-roles', isAuthenticated, (req, res) => {
         userPlan: userPlan
     });
 });
-// ====== ПОКУПКА РОЛИ ЧЕРЕЗ САЙТ ======
-router.post('/api/shop/buy-role-plan', isAuthenticated, async (req, res) => {
+// ====== ПОКУПКА РОЛИ (ТОЛЬКО ДЛЯ АДМИНОВ) ======
+router.post('/api/shop/buy-role-plan', isAdmin, async (req, res) => {
     try {
-        const { planId } = req.body;
-        const userId = req.user.id;
+        const { planId, userId } = req.body; // теперь нужно указывать userId
         const guildId = '1208677626961727528';
+
+        if (!userId) {
+            return res.json({ success: false, error: 'Укажите ID пользователя' });
+        }
 
         const paidRolesFile = path.join(__dirname, '..', 'data', 'paid-roles.json');
         let data = JSON.parse(fs.readFileSync(paidRolesFile, 'utf8'));
@@ -1065,15 +1068,6 @@ router.post('/api/shop/buy-role-plan', isAuthenticated, async (req, res) => {
 
         if (!plan) {
             return res.json({ success: false, error: 'План не найден' });
-        }
-
-        // Проверяем, есть ли уже роль
-        const existing = data.purchases[userId];
-        if (existing) {
-            const existingPlan = data.plans.find(p => p.id === existing.planId);
-            if (existingPlan && new Date(existing.expiresAt) > new Date()) {
-                return res.json({ success: false, error: `У вас уже есть активная роль "${existingPlan.name}"` });
-            }
         }
 
         const guild = global.discordClient.guilds.cache.get(guildId);
@@ -1086,20 +1080,27 @@ router.post('/api/shop/buy-role-plan', isAuthenticated, async (req, res) => {
             return res.json({ success: false, error: 'Пользователь не найден' });
         }
 
+        // Проверяем, есть ли уже роль
+        const existing = data.purchases[userId];
+        if (existing) {
+            const existingPlan = data.plans.find(p => p.id === existing.planId);
+            if (existingPlan && new Date(existing.expiresAt) > new Date()) {
+                return res.json({ success: false, error: `У пользователя уже есть активная роль "${existingPlan.name}"` });
+            }
+        }
+
         // Создаём роль
         const roleColor = plan.color || '#00ff88';
-const role = await guild.roles.create({
-    name: `💎 ${plan.name}`,
-    color: parseInt(roleColor.replace('#', ''), 16), // ← Преобразуем в число
-    position: plan.position || 5,
-    permissions: plan.permissions || [],
-    reason: `Покупка роли через сайт пользователем ${req.user.username}`
-});
+        const role = await guild.roles.create({
+            name: `💎 ${plan.name}`,
+            color: parseInt(roleColor.replace('#', ''), 16),
+            position: plan.position || 5,
+            permissions: plan.permissions || [],
+            reason: `Покупка роли админом для пользователя ${member.user.tag}`
+        });
 
-        // Выдаём роль
         await member.roles.add(role);
 
-        // Сохраняем покупку
         const expiresAt = new Date();
         expiresAt.setDate(expiresAt.getDate() + plan.duration);
 
@@ -1110,10 +1111,10 @@ const role = await guild.roles.create({
         };
         fs.writeFileSync(paidRolesFile, JSON.stringify(data, null, 2));
 
-        res.json({ success: true, message: `Роль "${plan.name}" выдана на ${plan.duration} дней!` });
+        res.json({ success: true, message: `Роль "${plan.name}" выдана пользователю ${member.user.username} на ${plan.duration} дней!` });
 
     } catch (error) {
-        console.error('Ошибка покупки роли:', error);
+        console.error('Ошибка выдачи роли:', error);
         res.json({ success: false, error: 'Ошибка сервера: ' + error.message });
     }
 });
