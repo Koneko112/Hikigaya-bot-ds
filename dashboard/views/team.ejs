@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Команда сервера</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        .team-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .team-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .team-header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #7c5cfc, #a29bfe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .team-header p {
+            color: #8888aa;
+        }
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .team-card {
+            background: #131325;
+            border-radius: 16px;
+            border: 1px solid #2a2a50;
+            padding: 20px;
+            transition: 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .team-card:hover {
+            border-color: #7c5cfc;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(124, 92, 252, 0.1);
+        }
+        .team-card .role-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid #2a2a50;
+            padding-bottom: 12px;
+        }
+        .team-card .role-header .icon {
+            font-size: 2rem;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(124, 92, 252, 0.1);
+            border-radius: 12px;
+        }
+        .team-card .role-header .title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #eee;
+        }
+        .team-card .role-header .badge {
+            margin-left: auto;
+            font-size: 0.65rem;
+            padding: 2px 12px;
+            border-radius: 12px;
+            background: rgba(124, 92, 252, 0.15);
+            color: #7c5cfc;
+        }
+        .team-card .description {
+            color: #8888aa;
+            font-size: 0.85rem;
+            margin-bottom: 16px;
+        }
+        .team-card .member-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 12px;
+            background: #0b0b14;
+            border-radius: 8px;
+            border: 1px solid #2a2a50;
+            margin-bottom: 8px;
+        }
+        .team-card .member-item .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid #2a2a50;
+        }
+        .team-card .member-item .info {
+            display: flex;
+            flex-direction: column;
+        }
+        .team-card .member-item .name {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .team-card .member-item .role-name {
+            color: #8888aa;
+            font-size: 0.7rem;
+        }
+        .team-card .member-item .mention {
+            color: #7c5cfc;
+            font-size: 0.65rem;
+            font-family: monospace;
+        }
+        .team-card .vacancy {
+            text-align: center;
+            padding: 16px;
+            background: rgba(255, 107, 107, 0.05);
+            border-radius: 8px;
+            border: 1px dashed rgba(255, 107, 107, 0.2);
+            color: #8888aa;
+        }
+        .team-card .vacancy .emoji {
+            font-size: 1.5rem;
+            display: block;
+            margin-bottom: 4px;
+        }
+        .team-card .vacancy .hint {
+            font-size: 0.8rem;
+            color: #555;
+        }
+        .team-footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #555;
+            font-size: 0.85rem;
+        }
+        .back-link {
+            color: #8888aa;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .back-link:hover {
+            color: #eee;
+        }
+        @media (max-width: 600px) {
+            .team-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">🤖 BotPanel</a>
+            <div class="nav-menu">
+                <a href="/dashboard">📊 Панель</a>
+                <a href="/profile">👤 Профиль</a>
+                <a href="/shop">🛒 Магазин</a>
+                <a href="/youtube">📺 YouTube</a>
+                <a href="/team" style="color: #fdcb6e;">👥 Команда</a>
+                <a href="/logout" style="color: #ff6b6b;">🚪 Выйти</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
+            <div>
+                <h1 class="gradient-text">👥 Команда сервера</h1>
+                <p style="color: #8888aa;">Люди, которые делают этот сервер лучше</p>
+            </div>
+            <a href="/dashboard" class="back-link">← Назад</a>
+        </div>
+
+        <div class="team-grid">
+            <% order.forEach(function(key) { %>
+                <% var role = team[key]; %>
+                <% if (!role) return; %>
+                <div class="team-card">
+                    <div class="role-header">
+                        <div class="icon"><%= role.icon || '👤' %></div>
+                        <div class="title"><%= role.name %></div>
+                        <span class="badge"><%= role.members ? role.members.length : 0 %> чел.</span>
+                    </div>
+                    <div class="description"><%= role.description || 'Нет описания' %></div>
+
+                    <% if (role.members && role.members.length > 0) { %>
+                        <% role.members.forEach(function(member) { %>
+                            <div class="member-item">
+                                <img class="avatar" src="<%= member.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png' %>" alt="<%= member.username %>">
+                                <div class="info">
+                                    <span class="name"><%= member.username || member.id %></span>
+                                    <span class="role-name"><%= member.role || 'Участник' %></span>
+                                </div>
+                            </div>
+                        <% }); %>
+                    <% } else { %>
+                        <div class="vacancy">
+                            <span class="emoji">📢</span>
+                            <div>Ищем кандидата!</div>
+                            <div class="hint">Напиши администратору, чтобы присоединиться</div>
+                        </div>
+                    <% } %>
+                </div>
+            <% }); %>
+        </div>
+
+        <div class="team-footer">
+            💡 Если хочешь присоединиться к команде — напиши <strong>Администратору стаффа</strong>
+        </div>
+    </div>
+</body>
+</html>
