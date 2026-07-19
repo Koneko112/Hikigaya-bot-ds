@@ -1239,4 +1239,37 @@ router.post('/api/admin/remove-role-purchase', isAdmin, async (req, res) => {
         res.status(500).send('Ошибка удаления покупки');
     }
 });
+// ====== СТРАНИЦА КОМАНДЫ ======
+router.get('/team', isAuthenticated, async (req, res) => {
+    const teamFile = path.join(__dirname, '..', 'data', 'team.json');
+    let teamData = { roles: {} };
+    if (fs.existsSync(teamFile)) {
+        teamData = JSON.parse(fs.readFileSync(teamFile, 'utf8'));
+    }
+
+    // Получаем данные пользователей из Discord
+    const guildId = '1208677626961727528';
+    const guild = global.discordClient.guilds.cache.get(guildId);
+    
+    for (const [roleKey, roleData] of Object.entries(teamData.roles)) {
+        for (const member of roleData.members) {
+            if (member.id && guild) {
+                try {
+                    const user = await guild.members.fetch(member.id);
+                    member.avatar = user.user.displayAvatarURL();
+                    member.username = user.user.username;
+                } catch {
+                    member.avatar = 'https://cdn.discordapp.com/embed/avatars/0.png';
+                    member.username = member.id;
+                }
+            }
+        }
+    }
+
+    res.render('team', { 
+        user: req.user, 
+        team: teamData.roles,
+        order: ['staff_admin', 'administrator', 'developer', 'curator', 'moderator', 'designer', 'support']
+    });
+});
 module.exports = router;
