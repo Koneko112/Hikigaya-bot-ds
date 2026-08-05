@@ -1312,6 +1312,7 @@ router.post('/api/verify-agree', isAuthenticated, async (req, res) => {
             second: '2-digit'
         });
 
+        // ТОЛЬКО ОДНА ОТПРАВКА — В КАНАЛ
         const channelId = '1534638034329538670';
         const channel = global.discordClient?.channels.cache.get(channelId);
         
@@ -1330,17 +1331,7 @@ router.post('/api/verify-agree', isAuthenticated, async (req, res) => {
             await channel.send({ embeds: [embed] });
         }
 
-        const adminId = '629216255873908736';
-        const admin = await global.discordClient?.users.fetch(adminId);
-        if (admin) {
-            await admin.send(
-                `🔔 **Новый участник прошёл верификацию!**\n` +
-                `👤 ${username}\n` +
-                `🆔 ${userId}\n` +
-                `🌐 IP: ${ip}\n` +
-                `📅 ${formattedDate}`
-            );
-        }
+        // Отправка в личку УДАЛЕНА
 
         res.json({ success: true, message: 'Добро пожаловать на сервер!' });
     } catch (error) {
