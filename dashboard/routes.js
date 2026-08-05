@@ -1293,10 +1293,26 @@ router.post('/api/verify-agree', isAuthenticated, async (req, res) => {
     try {
         const userId = req.user.id;
         const username = req.user.username;
-        const ip = req.ip || req.connection.remoteAddress || 'Неизвестно';
 
-        // ⚠️ ЗАМЕНИ НА ID КАНАЛА, КУДА БУДУТ ПРИХОДИТЬ УВЕДОМЛЕНИЯ
-        const channelId = '1516388273092558899';
+        // Реальный IP через прокси
+        const ip = req.headers['x-forwarded-for']?.split(',')[0] || 
+                   req.connection?.remoteAddress || 
+                   req.ip || 
+                   'Неизвестно';
+
+        // Московское время
+        const now = new Date();
+        const moscowTime = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Moscow' }));
+        const formattedDate = moscowTime.toLocaleString('ru-RU', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+
+        const channelId = '1534638034329538670';
         const channel = global.discordClient?.channels.cache.get(channelId);
         
         if (channel) {
@@ -1307,18 +1323,23 @@ router.post('/api/verify-agree', isAuthenticated, async (req, res) => {
                     { name: '👤 Ник', value: username, inline: true },
                     { name: '🆔 ID', value: userId, inline: true },
                     { name: '🌐 IP', value: ip, inline: true },
-                    { name: '📅 Дата', value: new Date().toLocaleString('ru-RU'), inline: true }
+                    { name: '📅 Дата', value: formattedDate, inline: true }
                 ],
                 footer: { text: 'Верификация пройдена' }
             };
             await channel.send({ embeds: [embed] });
         }
 
-        // ⚠️ ЗАМЕНИ НА СВОЙ DISCORD ID
         const adminId = '629216255873908736';
         const admin = await global.discordClient?.users.fetch(adminId);
         if (admin) {
-            await admin.send(`🔔 **Новый участник прошёл верификацию!**\n👤 ${username}\n🆔 ${userId}\n🌐 IP: ${ip}\n📅 ${new Date().toLocaleString('ru-RU')}`);
+            await admin.send(
+                `🔔 **Новый участник прошёл верификацию!**\n` +
+                `👤 ${username}\n` +
+                `🆔 ${userId}\n` +
+                `🌐 IP: ${ip}\n` +
+                `📅 ${formattedDate}`
+            );
         }
 
         res.json({ success: true, message: 'Добро пожаловать на сервер!' });
