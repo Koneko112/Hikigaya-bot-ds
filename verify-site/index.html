@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Верификация</title>
+    <link rel="stylesheet" href="/verify-site/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="verify-box">
+            <div class="logo">🤖</div>
+            <h1>Добро пожаловать!</h1>
+            <p class="subtitle">Для доступа к серверу примите правила</p>
+
+            <div class="rules">
+                <div class="rule"><span class="num">1.</span> Оскорбление других пользователей запрещено.</div>
+                <div class="rule"><span class="num">2.</span> Флуд, спам, капс — под запретом.</div>
+                <div class="rule"><span class="num">3.</span> 18+ контент запрещён.</div>
+                <div class="rule"><span class="num">4.</span> Политика и религия — не для обсуждения.</div>
+                <div class="rule"><span class="num">5.</span> Нацизм и фашизм запрещены.</div>
+                <div class="rule"><span class="num">6.</span> Обман участников запрещён.</div>
+                <div class="rule"><span class="num">7.</span> Не вреди проекту.</div>
+                <div class="rule"><span class="num">8.</span> Мат допустим, но не в оскорбительном контексте.</div>
+            </div>
+
+            <div class="agree">
+                <input type="checkbox" id="agree">
+                <label for="agree">Я согласен с правилами сервера</label>
+            </div>
+
+            <button id="verifyBtn" disabled>✅ Подтвердить</button>
+
+            <div id="status"></div>
+
+            <div class="footer">
+                <p>Войдите через Discord, чтобы продолжить</p>
+                <a href="/auth/discord" class="discord-btn">🔑 Войти через Discord</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="/verify-site/script.js"></script>
+</body>
+</html>
