@@ -1272,4 +1272,59 @@ router.get('/team', isAuthenticated, async (req, res) => {
         order: ['staff_admin', 'administrator', 'developer', 'curator', 'moderator', 'designer', 'support']
     });
 });
+// ====== СТРАНИЦА ВЕРИФИКАЦИИ ======
+router.get('/verify-page', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'verify-site', 'index.html'));
+});
+
+router.get('/verify-site/style.css', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'verify-site', 'style.css'));
+});
+
+router.get('/verify-site/script.js', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'verify-site', 'script.js'));
+});
+
+router.get('/api/me', isAuthenticated, (req, res) => {
+    res.json({ user: req.user });
+});
+
+router.post('/api/verify-agree', isAuthenticated, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const username = req.user.username;
+        const ip = req.ip || req.connection.remoteAddress || 'Неизвестно';
+
+        // ⚠️ ЗАМЕНИ НА ID КАНАЛА, КУДА БУДУТ ПРИХОДИТЬ УВЕДОМЛЕНИЯ
+        const channelId = '1516388273092558899';
+        const channel = global.discordClient?.channels.cache.get(channelId);
+        
+        if (channel) {
+            const embed = {
+                title: '✅ Новый участник согласился с правилами',
+                color: 0x00ff88,
+                fields: [
+                    { name: '👤 Ник', value: username, inline: true },
+                    { name: '🆔 ID', value: userId, inline: true },
+                    { name: '🌐 IP', value: ip, inline: true },
+                    { name: '📅 Дата', value: new Date().toLocaleString('ru-RU'), inline: true }
+                ],
+                footer: { text: 'Верификация пройдена' }
+            };
+            await channel.send({ embeds: [embed] });
+        }
+
+        // ⚠️ ЗАМЕНИ НА СВОЙ DISCORD ID
+        const adminId = '629216255873908736';
+        const admin = await global.discordClient?.users.fetch(adminId);
+        if (admin) {
+            await admin.send(`🔔 **Новый участник прошёл верификацию!**\n👤 ${username}\n🆔 ${userId}\n🌐 IP: ${ip}\n📅 ${new Date().toLocaleString('ru-RU')}`);
+        }
+
+        res.json({ success: true, message: 'Добро пожаловать на сервер!' });
+    } catch (error) {
+        console.error('Ошибка верификации:', error);
+        res.json({ success: false, error: error.message });
+    }
+});
 module.exports = router;
